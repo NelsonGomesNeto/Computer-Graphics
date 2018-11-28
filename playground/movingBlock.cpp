@@ -4,11 +4,13 @@
 #endif
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include <chrono>
 #include "./../sleep.h"
 #include <GL/freeglut.h>  // GLUT, includes glu.h and gl.h
 
 const double FPS = 60;
+const double pi = 3.141592653589793;
 double getTime()
 {
   return(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
@@ -30,6 +32,12 @@ void move(Object &object)
 
 Object block = {0, 0, 0.01, 0.02};
 
+void init()
+{
+  glMatrixMode(GL_PROJECTION);
+  gluOrtho2D(0, 200, 0, 150);
+}
+
 void display() {
   double start = getTime();
 
@@ -45,12 +53,30 @@ void display() {
     glVertex2f(-0.5f + block.x,  0.5f + block.y);
   glEnd();
 
+  glBegin(GL_POLYGON);              // Each set of 4 vertices form a quad
+    glColor3f(0.0f, 0.0f, 1.0f); // Blue
+    double star_x[5], star_y[5], x = 0, y = 0, cx = 0, cy = 0, size = 0.25, angle = 72*pi/180.0;
+    star_x[0] = star_y[0] = 0;
+    for (int i = 1; i < 5; i ++)
+    {
+      x += size * cos(angle), y += size * sin(angle);
+      angle += -144*pi/180.0;
+      cx += x, cy += y;
+      star_x[i] = x, star_y[i] = y;
+    } cx /= 5.0, cy /= 5.0;
+    for (int i = 0; i < 5; i ++)
+    {
+      printf("%d - {%.3g, %.3g}\n", i, cx - star_x[i], cy - star_y[i]);
+      glVertex2f(cx - star_x[i], cy - star_y[i]);
+    }
+  glEnd();
+
   move(block);
 
   glFlush();  // Render now
 
   double end = getTime();
-  printf("{%.3g, %.3g, %.3g, %.3g} %.3g\n", block.x, block.y, block.dx, block.dy, end - start);
+  // printf("{%.3g, %.3g, %.3g, %.3g} %.3g\n", block.x, block.y, block.dx, block.dy, end - start);
   mysleep(max(0, 1000.0/FPS - (end - start)));
 
   glutPostRedisplay();
@@ -62,8 +88,15 @@ int main(int argc, char** argv) {
   glutInit(&argc, argv);                 // Initialize GLUT
   glutCreateWindow("OpenGL Setup Test"); // Create a window with the given title
   glutInitWindowSize(320, 320);   // Set the window's initial width & height
+  // init(); Defines our canvas
   glutInitWindowPosition(50, 50); // Position the window's initial top-left corner
   glutDisplayFunc(display); // Register display callback handler for window re-paint
   glutMainLoop();           // Enter the infinitely event-processing loop
   return 0;
 }
+/*
+x - pi
+y - 180
+x*180 = y*pi
+x = y*pi/180
+*/
