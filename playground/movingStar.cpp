@@ -5,7 +5,6 @@
 using namespace std;
 #include <stdio.h>
 #include <math.h>
-#include "./../sleep.h"
 #include <GL/freeglut.h>
 const int width = 400, height = 400, inf = 1<<20;
 const double pi = acos(-1);
