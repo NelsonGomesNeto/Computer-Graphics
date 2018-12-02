@@ -9,7 +9,7 @@ using namespace std;
 #include <math.h>
 #include "./../rainbow.h"
 #include <GL/freeglut.h>
-const double pi = acos(-1), gravity = 100, gravityConstant = 160000.0;
+const double pi = acos(-1), gravity = 0.05, gravityConstant = 100;
 const int width = 800, height = 800;
 double degToRad(double a) { return (a * pi / 180.0); }
 struct Vector
@@ -38,7 +38,7 @@ void printText(string s, double x, double y)
 void mouseHandler(int button, int state, int x, int y)
 {
   if (state == GLUT_DOWN)
-    waves.push_back({(double)x, (double)y / height * 150.0 * (button == GLUT_LEFT_BUTTON ? 1 : -1)});
+    waves.push_back({(double)x, (double)y / height * 10 * (button == GLUT_LEFT_BUTTON ? 1 : -1)});
   printf("Mouse(%s): %d | mouse: (%d, %d)\n", state == GLUT_DOWN ? "down" : "up", button, x, y);
 }
 
@@ -71,15 +71,24 @@ void scheduleUpdate(int v)
 {
   for (int i = 0; i < blocks.size(); i++)
   { // Force = mass * acceleration
-    blocks[i].acceleration.y = -gravity - blocks[i].speed.y;
+
+    // Gravitational Force = G * m1 * m2 / d^2 * unitVector(d)
+    // Gravitational Force = G * m1 * m2 / d^2 * (d / ||d||)
+    // Gravitational Force = G * m1 * m2 / d^2 * (d / sqrt(d.x^2 + d.y^2))
+    // Gravitational Force = G * m1 * m2 / d^1.5 * (x direction, y direction)
+    // REMEBER THAT IT'S THE UNIT VECTOR DIRECTION
+    blocks[i].acceleration.y = -gravity - blocks[i].speed.y * 0;
     for (int j = 0; j < waves.size(); j++)
-      blocks[i].acceleration.y += gravityConstant * waves[j].y / pow(distance({blocks[i].x, blocks[i].y}, {waves[j].x, -100}), 2);
+    {
+      double d = distance({blocks[i].x, blocks[i].y}, {waves[j].x, -400});
+      blocks[i].acceleration.y += gravityConstant * waves[j].y / pow(d, 1.5) * ((blocks[i].y - -400) / d);
+    }
 
     blocks[i].speed.y += blocks[i].acceleration.y;
 
     blocks[i].x = (int)(blocks[i].x + blocks[i].speed.x) % width, blocks[i].y += blocks[i].speed.y;
     if (blocks[i].y < 100)
-      blocks[i].y = 100, blocks[i].speed.y = 0;
+      blocks[i].y = 100, blocks[i].speed.y *= -0.5;
     if (blocks[i].y > height - blocks[i].height / 2.0)
       blocks[i].y = height - blocks[i].height / 2.0, blocks[i].speed.y = 0;
   }
