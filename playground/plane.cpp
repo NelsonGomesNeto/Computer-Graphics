@@ -3,6 +3,7 @@
     #include <windows.h>
   #endif
 #endif
+#include <vector>
 #include <string>
 using namespace std;
 #include <math.h>
@@ -12,6 +13,7 @@ struct Point
   double x, y;
   string to_string() { return("(" + std::to_string(x) + ", " + std::to_string(y) + ")"); }
 };
+double scaleMatrix[3][3];
 Point mouse = {0, 0};
 const int width = 800, height = 800, dx[4] = {0, 1, 1, 0}, dy[4] = {0, 0, 1, 1};
 int plane = 0, planeScale = 20;
@@ -25,6 +27,15 @@ void printText(string s, double x, double y)
   glRasterPos2d(-x, -y);
 }
 
+void readFromFile(string path)
+{
+  FILE *p = fopen(path.c_str(), "r");
+  for (int i = 0; i < 3; i ++)
+    for (int j = 0; j < 3; j ++)
+      fscanf(p, "%lf", &scaleMatrix[i][j]);
+  fclose(p);
+}
+
 void scheduleUpdate(int v)
 {
   glutTimerFunc(10, scheduleUpdate, 1);
@@ -36,6 +47,7 @@ void scheduleUpdate(int v)
 void keyboardHandler(unsigned char key, int x, int y)
 {
   if (key >= '1' && key <= '4') plane = key - '1';
+  if (key == 'l') readFromFile("planeInput");
 }
 
 void passiveMotionHandler(int x, int y)
