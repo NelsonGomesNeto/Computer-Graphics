@@ -35,7 +35,7 @@ void printText(string s, double x, double y)
 
 void passiveMotionHandler(int x, int y)
 {
-  mouse.x = x, mouse.y = height - y;
+  mouse.x = x, mouse.y = y;
 }
 
 void keyboardHandler(unsigned char key, int x, int y)
@@ -47,8 +47,8 @@ void keyboardHandler(unsigned char key, int x, int y)
     case '2': sun.mass -= 10;
       break;
     case 'a':
-      if (!addingPlanet) startingPoint = {(double) x, (double) height - y};
-      else planets.push_back({startingPoint, (startingPoint - Point({(double) x, (double) height - y})) / 10, {0, 0}, 1});
+      if (!addingPlanet) startingPoint = {(double) x, (double) y};
+      else planets.push_back({startingPoint, -(Point({(double) x, (double) y}) - startingPoint) / 10, {0, 0}, 1});
       addingPlanet = !addingPlanet;
       break;
     case 's':
@@ -104,7 +104,7 @@ void display()
   glClear(GL_COLOR_BUFFER_BIT);
 
   // printText("sun.mass: " + to_string(sunAux.mass) + " earth.position.x: " + to_string(earthAux.position.x) + " earth.speed.y: " + to_string(earthAux.speed.y), 0, height - 100);
-  printText("planets: " + to_string(planets.size()), 0, height - 50);
+  printText("planets: " + to_string(planets.size()), 0, 50);
  
   drawCircle(sun.position, 50, 10);
   for (Object planet: planets) drawCircle(planet.position, 10, 10);
@@ -112,12 +112,14 @@ void display()
   if (addingPlanet)
   {
     drawCircle(startingPoint, 10, 10);
-    glBegin(GL_LINE);
-      glColor3ub(255, 255, 255);
+    glColor3ub(0, 0, 255);
+    glLineWidth(5);
+    glBegin(GL_LINES);
       glVertex2d(startingPoint.x, startingPoint.y);
       glVertex2d(mouse.x, mouse.y);
     glEnd();
-    printText("(" + to_string((startingPoint.x - mouse.x) / 10) + ", " + to_string((startingPoint.y - mouse.y) / 10) + ")", (mouse.x + startingPoint.x) / 2.0, (mouse.y + startingPoint.y) / 2.0);
+    printText("(" + to_string((mouse.x - startingPoint.x) / 10) + ", " + to_string((mouse.y - startingPoint.y) / 10) + ")", (mouse.x + startingPoint.x) / 2.0, (mouse.y + startingPoint.y) / 2.0);
+    glColor3ub(255, 255, 255);
   }
 
   glFlush();
@@ -125,7 +127,7 @@ void display()
 
 void init()
 {
-  gluOrtho2D(0, width, 0, height);
+  gluOrtho2D(0, width, height, 0);
 }
 
 int main(int argc, char **argv)
@@ -134,7 +136,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(width, height);
     glutInitWindowPosition(400, 100);
-    glutCreateWindow("Window name");
+    glutCreateWindow("Gravity");
     init();
   glutDisplayFunc(display);
   glutTimerFunc(10, scheduleUpdate, 1);
