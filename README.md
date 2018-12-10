@@ -1,8 +1,8 @@
 # Computer-Graphics
 #### Setup OpenGL on Windows (tested on MinGW):
   1. [Download freeglut](https://www.transmissionzero.co.uk/software/freeglut-devel/)
-  2. Move "freeglut.dll" to your Windows/System32 (it's on "/bin")
-  3. Move "/lib" content to the "/lib" of your compiler [OPT*]
+  2. Move "freeglut.dll" to the "/bin" of your compiler
+  3. Move "/lib" content to the "/lib" of your compiler
   4. Move "/GL" (from "/include") to the "/include" of your compiler [OPT*]
   5. Compile using these commands (I made .bat and .sh scripts for it):
       * Windows:

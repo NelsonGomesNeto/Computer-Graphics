@@ -1,5 +1,7 @@
 #ifndef _WIN32
-  #include <windows.h>
+  #if _WIN32
+    #include <windows.h>
+  #endif
 #endif
 #include <string>
 #include <algorithm>

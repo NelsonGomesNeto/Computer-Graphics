@@ -71,6 +71,7 @@ void keyboardHandler(unsigned char key, int x, int y)
 void passiveMotionHandler(int x, int y)
 {
   mouse.x = dx[plane] * x +  (1 - dx[plane]) * (width - x), mouse.y = dy[plane] * (height - y) + (1 - dy[plane]) * y;
+  // mouse.x = x, mouse.y = y;
 }
 
 void display()
@@ -119,6 +120,7 @@ void display()
 void init()
 {
   gluOrtho2D(width * (1 - dx[plane]), width * dx[plane], height * (1 - dy[plane]), height * dy[plane]);
+  // gluOrtho2D(0, width, 0, height);
 }
 
 int main(int argc, char **argv)
