@@ -3,6 +3,15 @@
 const int width = 800, height = 800;
 int year = 0, day = 0;
 
+void scheduleUpdate(int value)
+{
+  glutTimerFunc(10, scheduleUpdate, 1);
+  // day += 50;
+  // if (day >= 360) year += 1, day %= 360;
+  day += 5, year ++;
+  glutPostRedisplay();
+}
+
 void keyboardHandler(unsigned char key, int x, int y)
 {
   switch (key)
@@ -36,17 +45,54 @@ void display()
   glClear(GL_COLOR_BUFFER_BIT);
   glColor3f(1, 1, 1);
 
+  // Sun
   glPushMatrix();
     glRotatef(year, 1, 0, 0);
     glRotatef(day, 0, 0, 1);
-    glutWireSphere(1, 20, 16);
+    glutWireSphere(0.5, 20, 16);
   glPopMatrix();
 
+  // Planet 1
   glPushMatrix();
     glRotatef(year, 0, 1, 0);
     glTranslatef(2, 0, 0);
     glRotatef(day, 0, 1, 0);
-    glutWireSphere(0.2, 10, 8);
+    glutWireSphere(0.1, 10, 8);
+  glPopMatrix();
+
+  // Moon 1
+  glPushMatrix();
+    glRotatef(year, 0, 1, 0);
+    glTranslatef(2, 0, 0);
+    glRotatef(1.25*day, 0, 0, 1);
+    glTranslatef(0.2, 0, 0);
+    glutWireSphere(0.05, 10, 8);
+  glPopMatrix();
+
+  // Moon 2
+  glPushMatrix();
+    glRotatef(year, 0, 1, 0);
+    glTranslatef(2, 0, 0);
+    glRotatef(1.5*day, 0, 1, 0);
+    glTranslatef(0.4, 0, 0);
+    glutWireSphere(0.025, 10, 8);
+  glPopMatrix();
+
+  // Moon 3
+  glPushMatrix();
+    glRotatef(year, 0, 1, 0);
+    glTranslatef(2, 0, 0);
+    glRotatef(1.75*day, 0, 1, 1);
+    glTranslatef(0.3, 0, 0);
+    glutWireSphere(0.025, 10, 8);
+  glPopMatrix();
+
+  // Planet 2
+  glPushMatrix();
+    glRotatef(2*year, 0, -1, 0);
+    glTranslatef(1, 0, 0);
+    glRotatef(2*day, 0, 1, 0);
+    glutWireSphere(0.1, 10, 8);
   glPopMatrix();
 
   glutSwapBuffers();
@@ -55,7 +101,6 @@ void display()
 void init()
 {
   glClearColor(0, 0, 0, 0);
-  // glViewport(0, 0, width, height);
 }
 
 void reshape(int w, int h)
@@ -79,6 +124,7 @@ int main(int argc, char **argv)
 
   init();
   glutDisplayFunc(display);
+  glutTimerFunc(10, scheduleUpdate, 1);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboardHandler);
   glutMainLoop();

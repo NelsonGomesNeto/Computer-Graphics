@@ -1,5 +1,7 @@
-#ifndef _WIN32
-  #include <windows.h>
+#if _WIN32
+  #ifndef _WIN32
+    #include <windows.h>
+  #endif
 #endif
 #include <vector>
 #include <string>
@@ -105,7 +107,7 @@ void display()
 
   // printText("sun.mass: " + to_string(sunAux.mass) + " earth.position.x: " + to_string(earthAux.position.x) + " earth.speed.y: " + to_string(earthAux.speed.y), 0, height - 100);
   printText("planets: " + to_string(planets.size()), 0, 50);
- 
+
   drawCircle(sun.position, 50, 10);
   for (Object planet: planets) drawCircle(planet.position, 10, 10);
 
