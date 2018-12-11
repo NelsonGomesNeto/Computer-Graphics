@@ -8,7 +8,7 @@ void scheduleUpdate(int value)
   glutTimerFunc(10, scheduleUpdate, 1);
   // day += 50;
   // if (day >= 360) year += 1, day %= 360;
-  day += 5, year ++;
+  day ++, year ++;
   glutPostRedisplay();
 }
 
@@ -56,39 +56,36 @@ void display()
   glPushMatrix();
     glRotatef(year, 0, 1, 0);
     glTranslatef(2, 0, 0);
-    glRotatef(day, 0, 1, 0);
-    glutWireSphere(0.1, 10, 8);
-  glPopMatrix();
+    glPushMatrix();
+      glRotatef(day, 0, 1, 0);
+      glutWireSphere(0.1, 10, 8);
+    glPopMatrix();
 
-  // Moon 1
-  glPushMatrix();
-    glRotatef(year, 0, 1, 0);
-    glTranslatef(2, 0, 0);
-    glRotatef(1.25*day, 0, 0, 1);
-    glTranslatef(0.2, 0, 0);
-    glutWireSphere(0.05, 10, 8);
-  glPopMatrix();
+    glPushMatrix();
+      glColor3ub(255, 0, 0);
+      glRotatef(1.25*day, 0, 0, 1); // Moon 1
+      glTranslatef(0.2, 0, 0);
+      glutWireSphere(0.05, 10, 8);
+    glPopMatrix();
 
-  // Moon 2
-  glPushMatrix();
-    glRotatef(year, 0, 1, 0);
-    glTranslatef(2, 0, 0);
-    glRotatef(1.5*day, 0, 1, 0);
-    glTranslatef(0.4, 0, 0);
-    glutWireSphere(0.025, 10, 8);
-  glPopMatrix();
+    glPushMatrix();
+    glColor3ub(0, 255, 0);
+      glRotatef(1.5*day, 0, 1, 0); // Moon 2
+      glTranslatef(0.4, 0, 0);
+      glutWireSphere(0.025, 10, 8);
+    glPopMatrix();
 
-  // Moon 3
-  glPushMatrix();
-    glRotatef(year, 0, 1, 0);
-    glTranslatef(2, 0, 0);
-    glRotatef(1.75*day, 0, 1, 1);
-    glTranslatef(0.3, 0, 0);
-    glutWireSphere(0.025, 10, 8);
+    glPushMatrix();
+      glColor3ub(0, 0, 255);
+      glRotatef(1.75*day, 0, 1, 1); // Moon 3
+      glTranslatef(0.3, 0, 0);
+      glutWireSphere(0.025, 10, 8);
+    glPopMatrix();
   glPopMatrix();
 
   // Planet 2
   glPushMatrix();
+    glColor3ub(255, 255, 255);
     glRotatef(2*year, 0, -1, 0);
     glTranslatef(1, 0, 0);
     glRotatef(2*day, 0, 1, 0);
