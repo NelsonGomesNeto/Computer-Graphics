@@ -6,13 +6,11 @@
 #include <stdio.h>
 #include <GL/freeglut.h>
 #include <vector>
+#include "cube.h"
 using namespace std;
 
-const int width = 600, height = 600, n = 3;
-double xOffset = 0, yOffset = 0, zOffset = 0.5, cubeSize = 0.5;
-struct Piece { int color[6] = {0, 1, 2, 3, 4, 5}; }; // 0 - face, 1 - top, 2 - back, 3 - down, 4 - left, 5 - right
-const double colorMap[6][3] = {{253 / 255.0, 126 / 255.0, 0}, {255 / 255.0, 0, 0}, {0, 255 / 255.0, 0}, {0, 0, 255 / 255.0}, {255 / 255.0, 255 / 255.0, 255 / 255.0}, {255 / 255.0, 241 / 255.0, 25 / 255.0}};
-struct Cube { Piece pieces[n][n][n]; };
+const int width = 600, height = 600;
+double xOffset = 0, yOffset = 0, zOffset = 2.0, cubeSize = 1;
 Cube cube;
 
 void keyboardHandler(unsigned char key, int x, int y)
@@ -25,7 +23,7 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'X': xOffset -= 0.05; break;
     case 'y': yOffset += 0.05; break;
     case 'Y': yOffset -= 0.05; break;
-    default: break;
+    default: moveCube(cube, key); break;
   }
 }
 
@@ -38,18 +36,18 @@ void scheduleUpdate(int value)
 void drawPiece(Piece &piece, double size)
 {
   glPushMatrix();
-    glTranslated(0, 0, -cubeSize / 2.0);
+    glTranslated(0, 0, cubeSize / 2.0);
       glColor3dv(colorMap[piece.color[0]]);
       glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glTranslated(0, 0, cubeSize);
-      glColor3dv(colorMap[piece.color[1]]);
+    glTranslated(0, 0, -cubeSize);
+      glColor3dv(colorMap[piece.color[2]]);
       glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
   glPopMatrix();
 
   glPushMatrix();
-    glRotated(90, 0, 1, 0);
+    glRotated(90, 1, 0, 0);
     glTranslated(0, 0, -cubeSize / 2.0);
-      glColor3dv(colorMap[piece.color[2]]);
+      glColor3dv(colorMap[piece.color[1]]);
       glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
     glTranslated(0, 0, cubeSize);
       glColor3dv(colorMap[piece.color[3]]);
@@ -57,7 +55,7 @@ void drawPiece(Piece &piece, double size)
   glPopMatrix();
 
   glPushMatrix();
-    glRotated(90, 1, 0, 0);
+    glRotated(90, 0, 1, 0);
     glTranslated(0, 0, -cubeSize / 2.0);
       glColor3dv(colorMap[piece.color[4]]);
       glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
@@ -75,17 +73,30 @@ void drawCube(Cube &c)
       for (int k = 0; k < n; k++)
       {
         drawPiece(c.pieces[i][j][k], cubeSize);
+        glLineWidth(8);
+        glColor3ub(0, 0, 0);
+        glutWireCube(cubeSize);
         glTranslated(cubeSize, 0, 0);
       }
       glTranslated(-n * cubeSize, -cubeSize, 0);
     }
-    glTranslated(0, n * cubeSize, cubeSize);
+    glTranslated(0, n * cubeSize, -cubeSize);
   }
 }
 
 void display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // glPushMatrix();
+  //   glTranslated(xOffset - 3 * cubeSize, yOffset + 3 * cubeSize, zOffset - n / 2 * cubeSize);
+  //   for (int i = 0; i < 6; i ++)
+  //   {
+  //     glColor3dv(colorMap[i]);
+  //     glTranslated(cubeSize, 0, 0);
+  //     glutSolidCube(cubeSize);
+  //   }
+  // glPopMatrix();
 
   glPushMatrix();
     glColor3ub(0, 0, 255);
@@ -104,7 +115,7 @@ void reshape(int w, int h)
   glLoadIdentity();
 
   gluPerspective(60, (double) w / h, 1, 20);
-  gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
+  gluLookAt(5, 5, 6, 0, 0, 0, 0, 1, 0);
 }
 
 void init()
