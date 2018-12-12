@@ -127,7 +127,7 @@ void init()
 int main(int argc, char **argv)
 {
   glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(width, height);
     glutInitWindowPosition(1000, 100);
     glutCreateWindow("Cube");
