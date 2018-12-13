@@ -10,7 +10,7 @@
 using namespace std;
 
 const int width = 600, height = 600;
-double xOffset = 0, yOffset = 0, zOffset = 2.0, xAngle = 0, yAngle = 0, zAngle = 0, cubeSize = 1;
+double xOffset = 0, yOffset = 0, zOffset = 2.0, xAngle = 0, yAngle = 0, zAngle = 0, cubeSize = 4.0 / n;
 Cube cube;
 
 struct Point { int x, y; };
@@ -79,6 +79,10 @@ void drawSpaceVectors()
 
 void drawPiece(Piece &piece, double size)
 {
+  glLineWidth(8);
+  glColor3ub(0, 0, 0);
+  glutWireCube(cubeSize);
+
   glPushMatrix();
     glTranslated(0, 0, cubeSize / 2.0);
       glColor3dv(colorMap[piece.color[0]]);
@@ -110,21 +114,31 @@ void drawPiece(Piece &piece, double size)
 }
 void drawCube(Cube &c)
 {
-  for (int i = 0; i < n; i++)
+  for (int i = 0; i < n; i ++)
   {
-    for (int j = 0; j < n; j++)
+    if (i == 0 || i == n - 1)
     {
-      for (int k = 0; k < n; k++)
+      for (int j = 0; j < n; j ++)
       {
-        drawPiece(c.pieces[i][j][k], cubeSize);
-        glLineWidth(8);
-        glColor3ub(0, 0, 0);
-        glutWireCube(cubeSize);
-        glTranslated(cubeSize, 0, 0);
+        for (int k = 0; k < n; k ++)
+        {
+          if (i == 0 || j == 0 || k == 0 || i == n - 1 || j == n - 1 || k == n - 1)
+            drawPiece(c.pieces[i][j][k], cubeSize);
+          glTranslated(cubeSize, 0, 0);
+        }
+        glTranslated(-n*cubeSize, -cubeSize, 0);
       }
-      glTranslated(-n * cubeSize, -cubeSize, 0);
+      glTranslated(0, n*cubeSize, -cubeSize);
     }
-    glTranslated(0, n * cubeSize, -cubeSize);
+    else
+    {
+      int j = 0, k = 0;
+      while (k < n) { drawPiece(c.pieces[i][j][k ++], cubeSize); glTranslated(cubeSize, 0, 0); } glTranslated(-cubeSize, -cubeSize, 0), k --, j ++;
+      while (j < n) { drawPiece(c.pieces[i][j ++][k], cubeSize); glTranslated(0, -cubeSize, 0); } glTranslated(-cubeSize, cubeSize, 0); j --, k --;
+      while (k >= 0) { drawPiece(c.pieces[i][j][k --], cubeSize); glTranslated(-cubeSize, 0, 0); } glTranslated(cubeSize, cubeSize, 0), k ++, j --;
+      while (j >= 1) { drawPiece(c.pieces[i][j --][k], cubeSize); glTranslated(0, cubeSize, 0); }
+      glTranslated(0, 0, -cubeSize);
+    }
   }
 }
 

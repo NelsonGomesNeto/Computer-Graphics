@@ -1,7 +1,7 @@
 // 0 - face, 1 - top, 2 - back, 3 - down, 4 - left, 5 - right
 struct Piece { int color[6] = {0, 1, 2, 3, 4, 5}; };
 const double colorMap[6][3] = {{1, 1, 1}, {0, 0, 1}, {1, 241 / 255.0, 25 / 255.0}, {0, 1, 0}, {253 / 255.0, 126 / 255.0, 0}, {1, 0, 0}};
-const int n = 5; const int cicleSize = 2*n + 2*(n - 2);
+const int n = 3; const int cicleSize = 2*n + 2*(n - 2);
 struct Cube { Piece pieces[n][n][n]; };
 Piece cicle[cicleSize];
 
