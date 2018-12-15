@@ -9,7 +9,7 @@ using namespace std;
 #include <math.h>
 #include <GL/freeglut.h>
 const int width = 800, height = 800;
-const double pi = acos(-1), tau = 2 * acos(-1), gravitationConstant = 1;
+const double pi = acos(-1), tau = 2 * acos(-1), gravitationConstant = 5;
 double degToRad(double a) { return(a*pi/180.0); }
 struct Point
 {
@@ -64,8 +64,11 @@ void keyboardHandler(unsigned char key, int x, int y)
 void scheduleUpdate(int v)
 {
   glutTimerFunc(10, scheduleUpdate, 1);
-  // ||d|| = d / sqrt(d.x^2 + d.y^2)
-  // Gravitational Force = G * m1 * m2 / d^2 * ||d|| = G * m1 * m2 / d^1.5 * unitary(d.x, d.y)
+  // unitary(d) = vector(d) / ||d||
+  // ||d|| = sqrt(d.x^2 + d.y^2)
+  // Gravitational Force = G * m1 * m2 / ||d||^2 * unitVector(d)
+  // Gravitational Force = G * m1 * m2 / ||d||^2 * (vector(d) / ||d||)
+  // Gravitational Force = G * m1 * m2 / ||d||^3 * (x direction, y direction) using this part
   // Force = mass * acceleration
   // acceleration = Force / mass
 
@@ -73,15 +76,15 @@ void scheduleUpdate(int v)
   for (int i = 0; i < planets.size(); i ++)
   {
     double d = distance(planets[i].position, sun.position);
-    double force = gravitationConstant * planets[i].mass * sun.mass / pow(d, 1.5);
-    planets[i].acceleration = ((sun.position - planets[i].position) / d) * force / planets[i].mass;
-    sun.acceleration += ((planets[i].position - sun.position) / d) * force / sun.mass;
+    double force = gravitationConstant * planets[i].mass * sun.mass / pow(d, 3);
+    planets[i].acceleration = (sun.position - planets[i].position) * force / planets[i].mass;
+    sun.acceleration += (planets[i].position - sun.position) * force / sun.mass;
     for (int j = 0; j < planets.size(); j ++)
     {
       if (i == j) continue;
       d = distance(planets[i].position, planets[j].position);
-      force = gravitationConstant * planets[i].mass * planets[j].mass / pow(d, 1.5);
-      planets[i].acceleration += ((planets[j].position - planets[i].position) / d) * force / planets[i].mass;
+      force = gravitationConstant * planets[i].mass * planets[j].mass / pow(d, 3);
+      planets[i].acceleration += (planets[j].position - planets[i].position) * force / planets[i].mass;
     }
     planets[i].speed += planets[i].acceleration;
     planets[i].position += planets[i].speed;
