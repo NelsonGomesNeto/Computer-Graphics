@@ -9,22 +9,15 @@
 #include "cube.h"
 using namespace std;
 
-const int width = 600, height = 600;
-double xOffset = 0, yOffset = 0, zOffset = 2.0, xAngle = 0, yAngle = 0, zAngle = 0, cubeSize = 4.0 / n;
+const int width = 800, height = 800;
+double xOffset = 0, yOffset = 0, zOffset = 0, xAngle = 0, yAngle = 0, zAngle = 0, diff = 0, cubeSize = 4.0 / n;
 Cube cube;
 
 struct Point { int x, y; };
-Point mouse, startMouse; bool started = false; int axes;
+Point mouse, startMouse = {0, 0}; bool started = false; int axes;
 void passiveMotionHandler(int x, int y)
 {
-  int diff = y - startMouse.y;
-  if (started) switch (axes)
-  {
-    case 1: xAngle = diff; break;
-    case 2: yAngle = diff; break;
-    case 3: zAngle = diff; break;
-    default: break;
-  }
+  diff = y - startMouse.y;
 }
 
 void keyboardHandler(unsigned char key, int x, int y)
@@ -37,9 +30,9 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'X': xOffset -= 0.05; break;
     case 'y': yOffset += 0.05; break;
     case 'Y': yOffset -= 0.05; break;
-    case '1': if (!started) started = true, mouse.x = x, mouse.y = y, axes = key - '0'; else started = false; break;
-    case '2': if (!started) started = true, mouse.x = x, mouse.y = y, axes = key - '0'; else started = false; break;
-    case '3': if (!started) started = true, mouse.x = x, mouse.y = y, axes = key - '0'; else started = false; break;
+    case '1': if (!started) started = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else started = false; break;
+    case '2': if (!started) started = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else started = false; break;
+    case '3': if (!started) started = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else started = false; break;
     default: moveCube(cube, key); break;
   }
 }
@@ -47,6 +40,13 @@ void keyboardHandler(unsigned char key, int x, int y)
 void scheduleUpdate(int value)
 {
   glutTimerFunc(10, scheduleUpdate, 1);
+  if (started) switch (axes)
+  {
+    case 1: xAngle += diff / 1000.0; break;
+    case 2: yAngle += diff / 1000.0; break;
+    case 3: zAngle += diff / 1000.0; break;
+    default: break;
+  }
   glutPostRedisplay();
 }
 
@@ -77,40 +77,67 @@ void drawSpaceVectors()
   glPopMatrix();
 }
 
-void drawPiece(Piece &piece, double size)
+void drawPiece(Piece &piece, double size, int i, int j, int k)
 {
-  glLineWidth(8);
+  glLineWidth(1);
   glColor3ub(0, 0, 0);
+  // glColor3ub(255, 255, 255);
   glutWireCube(cubeSize);
 
-  glPushMatrix();
-    glTranslated(0, 0, cubeSize / 2.0);
-      glColor3dv(colorMap[piece.color[0]]);
-      glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glTranslated(0, 0, -cubeSize);
-      glColor3dv(colorMap[piece.color[2]]);
-      glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-  glPopMatrix();
+  if (i == 0)
+  {
+    glPushMatrix();
+      glTranslated(0, 0, cubeSize / 2.0);
+        glColor3dv(colorMap[piece.color[0]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+    glPopMatrix();
+  }
+  else if (i == n - 1)
+  {
+    glPushMatrix();
+      glTranslated(0, 0, -cubeSize / 2.0);
+        glColor3dv(colorMap[piece.color[2]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+    glPopMatrix();
+  }
 
-  glPushMatrix();
-    glRotated(90, 1, 0, 0);
-    glTranslated(0, 0, -cubeSize / 2.0);
-      glColor3dv(colorMap[piece.color[1]]);
-      glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glTranslated(0, 0, cubeSize);
-      glColor3dv(colorMap[piece.color[3]]);
-      glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-  glPopMatrix();
+  if (j == 0)
+  {
+    glPushMatrix();
+      glRotated(90, 1, 0, 0);
+      glTranslated(0, 0, -cubeSize / 2.0);
+        glColor3dv(colorMap[piece.color[1]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+    glPopMatrix();
+  }
+  else if (j == n - 1)
+  {
+    glPushMatrix();
+      glRotated(90, 1, 0, 0);
+      glTranslated(0, 0, cubeSize / 2.0);
+        glColor3dv(colorMap[piece.color[3]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+    glPopMatrix();
+  }
 
-  glPushMatrix();
-    glRotated(90, 0, 1, 0);
-    glTranslated(0, 0, -cubeSize / 2.0);
-      glColor3dv(colorMap[piece.color[4]]);
-      glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glTranslated(0, 0, cubeSize);
-      glColor3dv(colorMap[piece.color[5]]);
-      glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-  glPopMatrix();
+  if (k == 0)
+  {
+    glPushMatrix();
+      glRotated(90, 0, 1, 0);
+      glTranslated(0, 0, -cubeSize / 2.0);
+        glColor3dv(colorMap[piece.color[4]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+    glPopMatrix();
+  }
+  else if (k == n - 1)
+  {
+    glPushMatrix();
+      glRotated(90, 0, 1, 0);
+      glTranslated(0, 0, cubeSize / 2.0);
+        glColor3dv(colorMap[piece.color[5]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+    glPopMatrix();
+  }
 }
 void drawCube(Cube &c)
 {
@@ -122,8 +149,7 @@ void drawCube(Cube &c)
       {
         for (int k = 0; k < n; k ++)
         {
-          if (i == 0 || j == 0 || k == 0 || i == n - 1 || j == n - 1 || k == n - 1)
-            drawPiece(c.pieces[i][j][k], cubeSize);
+          drawPiece(c.pieces[i][j][k], cubeSize, i, j, k);
           glTranslated(cubeSize, 0, 0);
         }
         glTranslated(-n*cubeSize, -cubeSize, 0);
@@ -133,10 +159,10 @@ void drawCube(Cube &c)
     else
     {
       int j = 0, k = 0;
-      while (k < n) { drawPiece(c.pieces[i][j][k ++], cubeSize); glTranslated(cubeSize, 0, 0); } glTranslated(-cubeSize, -cubeSize, 0), k --, j ++;
-      while (j < n) { drawPiece(c.pieces[i][j ++][k], cubeSize); glTranslated(0, -cubeSize, 0); } glTranslated(-cubeSize, cubeSize, 0); j --, k --;
-      while (k >= 0) { drawPiece(c.pieces[i][j][k --], cubeSize); glTranslated(-cubeSize, 0, 0); } glTranslated(cubeSize, cubeSize, 0), k ++, j --;
-      while (j >= 1) { drawPiece(c.pieces[i][j --][k], cubeSize); glTranslated(0, cubeSize, 0); }
+      while (k < n) { drawPiece(c.pieces[i][j][k], cubeSize, i, j, k); glTranslated(cubeSize, 0, 0); k ++; } glTranslated(-cubeSize, -cubeSize, 0), k --, j ++;
+      while (j < n) { drawPiece(c.pieces[i][j][k], cubeSize, i, j, k); glTranslated(0, -cubeSize, 0); j ++; } glTranslated(-cubeSize, cubeSize, 0), j --, k --;
+      while (k >= 0) { drawPiece(c.pieces[i][j][k], cubeSize, i, j, k); glTranslated(-cubeSize, 0, 0); k --; } glTranslated(cubeSize, cubeSize, 0), k ++, j --;
+      while (j >= 1) { drawPiece(c.pieces[i][j][k], cubeSize, i, j, k); glTranslated(0, cubeSize, 0); j --; }
       glTranslated(0, 0, -cubeSize);
     }
   }
@@ -148,7 +174,7 @@ void display()
 
   glPushMatrix();
     glRotated(xAngle, 1, 0, 0); glRotated(yAngle, 0, 1, 0); glRotated(zAngle, 0, 0, 1);
-    glTranslated(-n / 2 * cubeSize,n / 2 * cubeSize,n / 2 * cubeSize);
+    glTranslated(-n / 2 * cubeSize + xOffset, n / 2 * cubeSize + yOffset, n / 2 * cubeSize + zOffset);
 
     glColor3ub(0, 0, 255);
     drawCube(cube);
