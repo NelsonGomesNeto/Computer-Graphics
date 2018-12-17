@@ -4,20 +4,25 @@
   #endif
 #endif
 #include <stdio.h>
+#include <math.h>
 #include <GL/freeglut.h>
 #include <vector>
 #include "cube.h"
+#include "../printText.h"
 using namespace std;
 
-const int width = 800, height = 800;
-double xOffset = 0, yOffset = 0, zOffset = 0, xAngle = 0, yAngle = 0, zAngle = 0, diff = 0, cubeSize = 4.0 / n;
+const int width = 800, height = 800; const double pi = acos(-1);
+double xOffset = 0, yOffset = 0, zOffset = 0, xAngle = 0, yAngle = 0, zAngle = 0, diff = 0, xDiff = 0, yDiff = 0, cubeSize = 4.0 / n;
+double degToRad(double angle) { return(angle*pi/180.0); };
 Cube cube;
 
 struct Point { int x, y; };
-Point mouse, startMouse = {0, 0}; bool started = false; int axes;
+Point mouse, startMouse = {0, 0}; bool rotating = false, mouseRotating = false; int axes;
 void passiveMotionHandler(int x, int y)
 {
-  diff = y - startMouse.y;
+
+  if (rotating) diff = (y - startMouse.y) / 100.0;
+  if (mouseRotating) xDiff = (x - startMouse.x) / 100.0, yDiff = (y - startMouse.y) / 100.0;
 }
 
 void keyboardHandler(unsigned char key, int x, int y)
@@ -30,9 +35,10 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'X': xOffset -= 0.05; break;
     case 'y': yOffset += 0.05; break;
     case 'Y': yOffset -= 0.05; break;
-    case '1': if (!started) started = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else started = false; break;
-    case '2': if (!started) started = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else started = false; break;
-    case '3': if (!started) started = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else started = false; break;
+    case '1': if (!rotating) rotating = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
+    case '2': if (!rotating) rotating = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
+    case '3': if (!rotating) rotating = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
+    case '4': if (!mouseRotating) mouseRotating = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else mouseRotating = false, xDiff = yDiff = 0; break;
     default: moveCube(cube, key); break;
   }
 }
@@ -40,11 +46,12 @@ void keyboardHandler(unsigned char key, int x, int y)
 void scheduleUpdate(int value)
 {
   glutTimerFunc(10, scheduleUpdate, 1);
-  if (started) switch (axes)
+  if (rotating || mouseRotating) switch (axes)
   {
-    case 1: xAngle += diff / 1000.0; break;
-    case 2: yAngle += diff / 1000.0; break;
-    case 3: zAngle += diff / 1000.0; break;
+    case 1: xAngle += diff; break;
+    case 2: yAngle += diff; break;
+    case 3: zAngle += diff; break;
+    case 4: xAngle += yDiff, yAngle += xDiff; break;
     default: break;
   }
   glutPostRedisplay();
@@ -172,12 +179,40 @@ void display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  
   glPushMatrix();
-    glRotated(xAngle, 1, 0, 0); glRotated(yAngle, 0, 1, 0); glRotated(zAngle, 0, 0, 1);
+    glTranslated(-n / 2 * cubeSize + xOffset, (n / 2 + 2) * cubeSize + yOffset, n / 2 * cubeSize + zOffset);
+    glColor3ub(255 * (axes == 1), 255 * (axes == 2), 255 * (axes == 3));
+    if (rotating) printText("Rotating: " + (string)(axes == 1 ? "x" : axes == 2 ? "y" : "z") + "-axes", 0, 0);
+    glColor3ub(255, 255, 255);
+    printText("(" + to_string(xAngle) + ", " + to_string(yAngle) + ", " + to_string(zAngle) + ")", 0, -cubeSize / 2.0);
+  glPopMatrix();
+
+  glPushMatrix();
+    double sinY = sin(degToRad(yAngle)), sinY2 = sin(degToRad(90+yAngle)), cosY = cos(degToRad(yAngle)), cosY2 = cos(degToRad(0+yAngle));
+    double sinX = sin(degToRad(xAngle)), sinX2 = sin(degToRad(0+xAngle)), cosX = cos(degToRad(xAngle)), cosX2 = cos(degToRad(90+xAngle));
+    // (0, 0) -> (0, 0, 1)
+    // (90, 90) -> (1, 0, 0)
+    // (180, 180) -> (0, 0, 1)
+    // (0, 90) -> (1, 0, 0)
+    // (0, 180) -> (0, 0, -1)
+    // (90, 0) -> (0, -1, 0)
+    // (180, 0) -> (0, 0, -1)
+    double zTurn = 1 - abs(sinY * cosX + sinX * cosY);
+    double zTurn2 = sinY2 * cosX2 + sinX2 * cosY2;
+    double zTurn3 = cosX * cosY;
+    glRotated(xAngle, 1, 0, 0); glRotated(yAngle, 0, cosX, -sinX); glRotated(zAngle, sinY, sinX * cosY, zTurn3);
+    printf("(%3.3lf, %3.3lf, %3.3lf [%3.3lf] {%3.3lf})\n", sinY, sinX * cosY, zTurn, zTurn2, zTurn3);
+    drawSpaceVectors();
+
+    // glPushMatrix();
+    //   glTranslated(0, (n / 2 + 2) * cubeSize, 0);
+    // glPopMatrix();
+  
     glTranslated(-n / 2 * cubeSize + xOffset, n / 2 * cubeSize + yOffset, n / 2 * cubeSize + zOffset);
 
     glColor3ub(0, 0, 255);
-    drawCube(cube);
+    // drawCube(cube);
   glPopMatrix();
 
   glutSwapBuffers();
