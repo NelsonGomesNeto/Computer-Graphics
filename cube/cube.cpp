@@ -179,7 +179,7 @@ void display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  
+
   glPushMatrix();
     glTranslated(-n / 2 * cubeSize + xOffset, (n / 2 + 2) * cubeSize + yOffset, n / 2 * cubeSize + zOffset);
     glColor3ub(255 * (axes == 1), 255 * (axes == 2), 255 * (axes == 3));
@@ -198,7 +198,7 @@ void display()
     // (0, 180) -> (0, 0, -1)
     // (90, 0) -> (0, -1, 0)
     // (180, 0) -> (0, 0, -1)
-    double zTurn = 1 - abs(sinY * cosX + sinX * cosY);
+    double zTurn = 1 - sinY * cosX + sinX * cosY;
     double zTurn2 = sinY2 * cosX2 + sinX2 * cosY2;
     double zTurn3 = cosX * cosY;
     glRotated(xAngle, 1, 0, 0); glRotated(yAngle, 0, cosX, -sinX); glRotated(zAngle, sinY, sinX * cosY, zTurn3);
@@ -208,11 +208,11 @@ void display()
     // glPushMatrix();
     //   glTranslated(0, (n / 2 + 2) * cubeSize, 0);
     // glPopMatrix();
-  
+
     glTranslated(-n / 2 * cubeSize + xOffset, n / 2 * cubeSize + yOffset, n / 2 * cubeSize + zOffset);
 
     glColor3ub(0, 0, 255);
-    // drawCube(cube);
+    drawCube(cube);
   glPopMatrix();
 
   glutSwapBuffers();

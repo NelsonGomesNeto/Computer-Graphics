@@ -86,7 +86,8 @@ void scheduleUpdate(int v)
 
     blocks[i].speed.y += blocks[i].acceleration.y;
 
-    blocks[i].x = (int)(blocks[i].x + blocks[i].speed.x) % width, blocks[i].y += blocks[i].speed.y;
+    blocks[i].x = (int)(blocks[i].x + blocks[i].speed.x), blocks[i].y += blocks[i].speed.y;
+    if (blocks[i].x > width) blocks[i].x = (int) blocks[i].x % width, blocks[i].y = 0, blocks[i].speed.y = 0;
     if (blocks[i].y < 100)
       blocks[i].y = 100, blocks[i].speed.y *= -1;
     if (blocks[i].y > height - blocks[i].height / 2.0)
