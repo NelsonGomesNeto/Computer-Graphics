@@ -9,12 +9,13 @@
 #include <vector>
 #include "cube.h"
 #include "../printText.h"
+#include "../quaternions.h"
 using namespace std;
 
 const int width = 800, height = 800; const double pi = acos(-1);
 double xOffset = 0, yOffset = 0, zOffset = 0, xAngle = 0, yAngle = 0, zAngle = 0, diff = 0, xDiff = 0, yDiff = 0, cubeSize = 4.0 / n;
 double degToRad(double angle) { return(angle*pi/180.0); };
-Cube cube;
+Cube cube; Quaternions orientation;
 
 struct Point { int x, y; };
 Point mouse, startMouse = {0, 0}; bool rotating = false, mouseRotating = false; int axes;
@@ -189,20 +190,32 @@ void display()
   glPopMatrix();
 
   glPushMatrix();
-    double sinY = sin(degToRad(yAngle)), sinY2 = sin(degToRad(90+yAngle)), cosY = cos(degToRad(yAngle)), cosY2 = cos(degToRad(0+yAngle));
-    double sinX = sin(degToRad(xAngle)), sinX2 = sin(degToRad(0+xAngle)), cosX = cos(degToRad(xAngle)), cosX2 = cos(degToRad(90+xAngle));
-    // (0, 0) -> (0, 0, 1)
-    // (90, 90) -> (1, 0, 0)
-    // (180, 180) -> (0, 0, 1)
-    // (0, 90) -> (1, 0, 0)
-    // (0, 180) -> (0, 0, -1)
-    // (90, 0) -> (0, -1, 0)
-    // (180, 0) -> (0, 0, -1)
-    double zTurn = 1 - sinY * cosX + sinX * cosY;
-    double zTurn2 = sinY2 * cosX2 + sinX2 * cosY2;
-    double zTurn3 = cosX * cosY;
-    glRotated(xAngle, 1, 0, 0); glRotated(yAngle, 0, cosX, -sinX); glRotated(zAngle, sinY, sinX * cosY, zTurn3);
-    printf("(%3.3lf, %3.3lf, %3.3lf [%3.3lf] {%3.3lf})\n", sinY, sinX * cosY, zTurn, zTurn2, zTurn3);
+    // double sinY = sin(degToRad(yAngle)), sinY2 = sin(degToRad(90+yAngle)), cosY = cos(degToRad(yAngle)), cosY2 = cos(degToRad(0+yAngle));
+    // double sinX = sin(degToRad(xAngle)), sinX2 = sin(degToRad(0+xAngle)), cosX = cos(degToRad(xAngle)), cosX2 = cos(degToRad(90+xAngle));
+    // // (0, 0) -> (0, 0, 1)
+    // // (90, 90) -> (1, 0, 0)
+    // // (180, 180) -> (0, 0, 1)
+    // // (0, 90) -> (1, 0, 0)
+    // // (0, 180) -> (0, 0, -1)
+    // // (90, 0) -> (0, -1, 0)
+    // // (180, 0) -> (0, 0, -1)
+    // double zTurn = 1 - sinY * cosX + sinX * cosY;
+    // double zTurn2 = sinY2 * cosX2 + sinX2 * cosY2;
+    // double zTurn3 = cosX * cosY;
+    // glRotated(xAngle, 1, 0, 0); glRotated(yAngle, 0, cosX, -sinX); glRotated(zAngle, sinY, sinX * cosY, zTurn3);
+    double cosX = cos(degToRad(xAngle * 0.5)), sinX = sin(degToRad(xAngle * 0.5));
+    double cosY = cos(degToRad(yAngle * 0.5)), sinY = sin(degToRad(yAngle * 0.5));
+    double cosZ = cos(degToRad(zAngle * 0.5)), sinZ = sin(degToRad(zAngle * 0.5));
+    orientation = {cosZ*cosY*cosX + sinZ*sinY*sinX,
+                   cosZ*cosY*sinX - sinZ*sinY*cosX,
+                   sinZ*cosY*sinX + cosZ*sinY*cosX,
+                   sinZ*cosY*cosX - cosZ*sinY*sinX};
+    double rot[4][4], lol[16]; orientation.fillMat4(rot);
+    // for (int i = 0; i < 4; i ++) for (int j = 0; j < 4; j ++) printf("%3.3lf%c", rot[i][j], j < 3 ? ' ' : '\n');
+    glMultMatrixd(&rot[0][0]);
+    glGetDoublev(GL_MODELVIEW_MATRIX, lol);
+    for (int i = 0; i < 4; i ++) for (int j = 0; j < 4; j ++) printf("%3.3lf%c", lol[i*4+j], j < 3 ? ' ' : '\n'); printf("\n");
+    // printf("(%3.3lf, %3.3lf, %3.3lf [%3.3lf] {%3.3lf})\n", sinY, sinX * cosY, zTurn, zTurn2, zTurn3);
     drawSpaceVectors();
 
     // glPushMatrix();
