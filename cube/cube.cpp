@@ -18,7 +18,7 @@ double degToRad(double angle) { return(angle*pi/180.0); };
 Cube cube; Quaternions orientation = {1, 0, 0, 0}; double rotationMatrix[4][4];
 
 struct Point { int x, y; };
-Point mouse = {0, 0}; bool rotating = false, mouseRotating = false; int axes;
+Point mouse = {0, 0}; bool rotating = false, mouseRotating = false; int axis;
 void passiveMotionHandler(int x, int y)
 {
 
@@ -36,10 +36,10 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'X': xOffset -= 0.05; break;
     case 'y': yOffset += 0.05; break;
     case 'Y': yOffset -= 0.05; break;
-    case '1': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
-    case '2': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
-    case '3': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
-    case '4': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axes = key - '0'; else mouseRotating = false, xDiff = yDiff = 0; break;
+    case '1': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
+    case '2': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
+    case '3': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
+    case '4': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else mouseRotating = false, xDiff = yDiff = 0; break;
     default: moveCube(cube, key); break;
   }
 }
@@ -47,7 +47,7 @@ void keyboardHandler(unsigned char key, int x, int y)
 void scheduleUpdate(int value)
 {
   glutTimerFunc(10, scheduleUpdate, 1);
-  if (rotating || mouseRotating) switch (axes)
+  if (rotating || mouseRotating) switch (axis)
   {
     case 1: xAngle += diff; orientation *= Quaternions({cos(degToRad(diff*0.5)), sin(degToRad(diff*0.5)), 0, 0}); break;
     case 2: yAngle += diff; orientation *= Quaternions({cos(degToRad(-diff*0.5)), 0, sin(degToRad(-diff*0.5)), 0}); break;
@@ -186,8 +186,8 @@ void display()
 
   glPushMatrix();
     glTranslated(-3.5 + xOffset, 3.5 + yOffset, 0 + zOffset);
-    glColor3ub(255 * (axes == 1), 255 * (axes == 2), 255 * (axes == 3));
-    if (rotating) printText("Rotating: " + (string)(axes == 1 ? "x" : axes == 2 ? "y" : "z") + "-axes", 0, 0.5);
+    glColor3ub(255 * (axis == 1), 255 * (axis == 2), 255 * (axis == 3));
+    if (rotating) printText("Rotating: " + (string)(axis == 1 ? "x" : axis == 2 ? "y" : "z") + "-axis", 0, 0.5);
     glColor3ub(255, 255, 255);
     // printText("(" + to_string(xAngle) + ", " + to_string(yAngle) + ", " + to_string(zAngle) + ")", 0, -cubeSize / 2.0);
     printText("(" + to_string(orientation.u) + ", " + to_string(orientation.x) + ", " + to_string(orientation.y) + "," + to_string(orientation.z) + ")", 0, 0);
