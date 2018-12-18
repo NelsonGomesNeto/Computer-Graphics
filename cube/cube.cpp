@@ -15,13 +15,12 @@ using namespace std;
 const int width = 800, height = 800; const double pi = acos(-1);
 double xOffset = 0, yOffset = 0, zOffset = 0, xAngle = 0, yAngle = 0, zAngle = 0, diff = 0, xDiff = 0, yDiff = 0, cubeSize = 4.0 / n;
 double degToRad(double angle) { return(angle*pi/180.0); };
-Cube cube; Quaternions orientation = {1, 0, 0, 0}; double rotationMatrix[4][4];
+Cube cube; Quaternions orientation = {1, 0, 0, 0}; double rotationMatrix[4][4]; int number = 1;
 
 struct Point { int x, y; };
 Point mouse = {0, 0}; bool rotating = false, mouseRotating = false; int axis;
 void passiveMotionHandler(int x, int y)
 {
-
   if (rotating) diff = (y - mouse.y) / 100.0;
   if (mouseRotating) xDiff = (x - mouse.x) / 100.0, yDiff = (y - mouse.y) / 100.0;
 }
@@ -36,11 +35,21 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'X': xOffset -= 0.05; break;
     case 'y': yOffset += 0.05; break;
     case 'Y': yOffset -= 0.05; break;
-    case '1': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
-    case '2': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
-    case '3': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
-    case '4': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else mouseRotating = false, xDiff = yDiff = 0; break;
-    default: moveCube(cube, key); break;
+    case 'q': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
+    case 'w': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
+    case 'e': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
+    case 'a': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else mouseRotating = false, xDiff = yDiff = 0; break;
+    case ' ': number = 0; break;
+    default:
+      if (key >= '0' && key <= '9')
+      {
+        number = number * 10 + key - '0'; number = min(number, n);
+      }
+      else
+      {
+        if (number) moveCube(cube, key, number - 1);
+      }
+      break;
   }
 }
 
@@ -191,6 +200,7 @@ void display()
     glColor3ub(255, 255, 255);
     // printText("(" + to_string(xAngle) + ", " + to_string(yAngle) + ", " + to_string(zAngle) + ")", 0, -cubeSize / 2.0);
     printText("(" + to_string(orientation.u) + ", " + to_string(orientation.x) + ", " + to_string(orientation.y) + "," + to_string(orientation.z) + ")", 0, 0);
+    glColor3ub(255, 255, 0); printText("number: " + to_string(number), -4.5, 0.5);
   glPopMatrix();
 
   drawSpaceVectors();
