@@ -15,15 +15,15 @@ using namespace std;
 const int width = 800, height = 800; const double pi = acos(-1);
 double xOffset = 0, yOffset = 0, zOffset = 0, xAngle = 0, yAngle = 0, zAngle = 0, diff = 0, xDiff = 0, yDiff = 0, cubeSize = 4.0 / n;
 double degToRad(double angle) { return(angle*pi/180.0); };
-Cube cube; Quaternions orientation;
+Cube cube; Quaternions orientation = {1, 0, 0, 0}; double rotationMatrix[4][4];
 
 struct Point { int x, y; };
-Point mouse, startMouse = {0, 0}; bool rotating = false, mouseRotating = false; int axes;
+Point mouse = {0, 0}; bool rotating = false, mouseRotating = false; int axes;
 void passiveMotionHandler(int x, int y)
 {
 
-  if (rotating) diff = (y - startMouse.y) / 100.0;
-  if (mouseRotating) xDiff = (x - startMouse.x) / 100.0, yDiff = (y - startMouse.y) / 100.0;
+  if (rotating) diff = (y - mouse.y) / 100.0;
+  if (mouseRotating) xDiff = (x - mouse.x) / 100.0, yDiff = (y - mouse.y) / 100.0;
 }
 
 void keyboardHandler(unsigned char key, int x, int y)
@@ -36,10 +36,10 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'X': xOffset -= 0.05; break;
     case 'y': yOffset += 0.05; break;
     case 'Y': yOffset -= 0.05; break;
-    case '1': if (!rotating) rotating = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
-    case '2': if (!rotating) rotating = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
-    case '3': if (!rotating) rotating = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
-    case '4': if (!mouseRotating) mouseRotating = true, startMouse.x = x, startMouse.y = y, axes = key - '0'; else mouseRotating = false, xDiff = yDiff = 0; break;
+    case '1': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
+    case '2': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
+    case '3': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axes = key - '0'; else rotating = false, diff = 0; break;
+    case '4': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axes = key - '0'; else mouseRotating = false, xDiff = yDiff = 0; break;
     default: moveCube(cube, key); break;
   }
 }
@@ -49,12 +49,17 @@ void scheduleUpdate(int value)
   glutTimerFunc(10, scheduleUpdate, 1);
   if (rotating || mouseRotating) switch (axes)
   {
-    case 1: xAngle += diff; break;
-    case 2: yAngle += diff; break;
-    case 3: zAngle += diff; break;
-    case 4: xAngle += yDiff, yAngle += xDiff; break;
+    case 1: xAngle += diff; orientation *= Quaternions({cos(degToRad(diff*0.5)), sin(degToRad(diff*0.5)), 0, 0}); break;
+    case 2: yAngle += diff; orientation *= Quaternions({cos(degToRad(-diff*0.5)), 0, sin(degToRad(-diff*0.5)), 0}); break;
+    case 3: zAngle += diff; orientation *= Quaternions({cos(degToRad(diff*0.5)), 0, 0, sin(degToRad(diff*0.5))}); break;
+    case 4:
+      xAngle += yDiff, yAngle += xDiff;
+      orientation *= Quaternions({cos(degToRad(-yDiff*0.5)), sin(degToRad(-yDiff*0.5)), 0, 0});
+      orientation *= Quaternions({cos(degToRad(xDiff*0.5)), 0, sin(degToRad(xDiff*0.5)), 0});
+      break;
     default: break;
   }
+  orientation.normalize();
   glutPostRedisplay();
 }
 
@@ -62,14 +67,13 @@ void drawArrow()
 {
   glBegin(GL_LINES);
     glVertex3d(0, 0, 0);
-    glVertex3d(3, 0, 0);
+    glVertex3d(3.5, 0, 0);
   glEnd();
 }
 void drawSpaceVectors()
 {
   glLineWidth(8);
   glPushMatrix();
-    // glTranslated(-8*cubeSize, -5*cubeSize, 0);
     glColor3ub(255, 0, 0);
     drawArrow(); // x
     glPushMatrix();
@@ -78,7 +82,7 @@ void drawSpaceVectors()
       drawArrow(); // y
     glPopMatrix();
     glPushMatrix();
-      glRotated(90, 0, 1, 0);
+      glRotated(90, 0, -1, 0);
       glColor3ub(0, 0, 255);
       drawArrow(); // z
     glPopMatrix();
@@ -180,47 +184,20 @@ void display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
   glPushMatrix();
-    glTranslated(-n / 2 * cubeSize + xOffset, (n / 2 + 2) * cubeSize + yOffset, n / 2 * cubeSize + zOffset);
+    glTranslated(-3.5 + xOffset, 3.5 + yOffset, 0 + zOffset);
     glColor3ub(255 * (axes == 1), 255 * (axes == 2), 255 * (axes == 3));
-    if (rotating) printText("Rotating: " + (string)(axes == 1 ? "x" : axes == 2 ? "y" : "z") + "-axes", 0, 0);
+    if (rotating) printText("Rotating: " + (string)(axes == 1 ? "x" : axes == 2 ? "y" : "z") + "-axes", 0, 0.5);
     glColor3ub(255, 255, 255);
-    printText("(" + to_string(xAngle) + ", " + to_string(yAngle) + ", " + to_string(zAngle) + ")", 0, -cubeSize / 2.0);
+    // printText("(" + to_string(xAngle) + ", " + to_string(yAngle) + ", " + to_string(zAngle) + ")", 0, -cubeSize / 2.0);
+    printText("(" + to_string(orientation.u) + ", " + to_string(orientation.x) + ", " + to_string(orientation.y) + "," + to_string(orientation.z) + ")", 0, 0);
   glPopMatrix();
 
-  glPushMatrix();
-    // double sinY = sin(degToRad(yAngle)), sinY2 = sin(degToRad(90+yAngle)), cosY = cos(degToRad(yAngle)), cosY2 = cos(degToRad(0+yAngle));
-    // double sinX = sin(degToRad(xAngle)), sinX2 = sin(degToRad(0+xAngle)), cosX = cos(degToRad(xAngle)), cosX2 = cos(degToRad(90+xAngle));
-    // // (0, 0) -> (0, 0, 1)
-    // // (90, 90) -> (1, 0, 0)
-    // // (180, 180) -> (0, 0, 1)
-    // // (0, 90) -> (1, 0, 0)
-    // // (0, 180) -> (0, 0, -1)
-    // // (90, 0) -> (0, -1, 0)
-    // // (180, 0) -> (0, 0, -1)
-    // double zTurn = 1 - sinY * cosX + sinX * cosY;
-    // double zTurn2 = sinY2 * cosX2 + sinX2 * cosY2;
-    // double zTurn3 = cosX * cosY;
-    // glRotated(xAngle, 1, 0, 0); glRotated(yAngle, 0, cosX, -sinX); glRotated(zAngle, sinY, sinX * cosY, zTurn3);
-    double cosX = cos(degToRad(xAngle * 0.5)), sinX = sin(degToRad(xAngle * 0.5));
-    double cosY = cos(degToRad(yAngle * 0.5)), sinY = sin(degToRad(yAngle * 0.5));
-    double cosZ = cos(degToRad(zAngle * 0.5)), sinZ = sin(degToRad(zAngle * 0.5));
-    orientation = {cosZ*cosY*cosX + sinZ*sinY*sinX,
-                   cosZ*cosY*sinX - sinZ*sinY*cosX,
-                   sinZ*cosY*sinX + cosZ*sinY*cosX,
-                   sinZ*cosY*cosX - cosZ*sinY*sinX};
-    double rot[4][4], lol[16]; orientation.fillMat4(rot);
-    // for (int i = 0; i < 4; i ++) for (int j = 0; j < 4; j ++) printf("%3.3lf%c", rot[i][j], j < 3 ? ' ' : '\n');
-    glMultMatrixd(&rot[0][0]);
-    glGetDoublev(GL_MODELVIEW_MATRIX, lol);
-    for (int i = 0; i < 4; i ++) for (int j = 0; j < 4; j ++) printf("%3.3lf%c", lol[i*4+j], j < 3 ? ' ' : '\n'); printf("\n");
-    // printf("(%3.3lf, %3.3lf, %3.3lf [%3.3lf] {%3.3lf})\n", sinY, sinX * cosY, zTurn, zTurn2, zTurn3);
-    drawSpaceVectors();
+  drawSpaceVectors();
 
-    // glPushMatrix();
-    //   glTranslated(0, (n / 2 + 2) * cubeSize, 0);
-    // glPopMatrix();
+  glPushMatrix();
+    orientation.fillMat4(rotationMatrix);
+    glMultMatrixd(&rotationMatrix[0][0]);
 
     glTranslated(-n / 2 * cubeSize + xOffset, n / 2 * cubeSize + yOffset, n / 2 * cubeSize + zOffset);
 
