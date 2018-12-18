@@ -29,16 +29,16 @@ void keyboardHandler(unsigned char key, int x, int y)
 {
   switch (key)
   {
-    case 'z': zOffset += 0.05; break;
-    case 'Z': zOffset -= 0.05; break;
     case 'x': xOffset += 0.05; break;
     case 'X': xOffset -= 0.05; break;
     case 'y': yOffset += 0.05; break;
     case 'Y': yOffset -= 0.05; break;
-    case 'q': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
-    case 'w': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
-    case 'e': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else rotating = false, diff = 0; break;
-    case 'a': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axis = key - '0'; else mouseRotating = false, xDiff = yDiff = 0; break;
+    case 'z': zOffset += 0.05; break;
+    case 'Z': zOffset -= 0.05; break;
+    case 'q': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = 1; else rotating = false, diff = 0; break;
+    case 'w': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = 2; else rotating = false, diff = 0; break;
+    case 'e': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = 3; else rotating = false, diff = 0; break;
+    case 'a': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axis = 4; else mouseRotating = false, xDiff = yDiff = 0; break;
     case ' ': number = 0; break;
     default:
       if (key >= '0' && key <= '9')
