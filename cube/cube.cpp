@@ -103,29 +103,21 @@ void drawSpaceVectors()
   glPopMatrix();
 }
 
-void drawBorder()
+void drawLine()
 {
-  glColor3ub(0, 0, 0);
   glBegin(GL_LINES);
-    glVertex2d(-cubeSize / 2.0, -cubeSize / 2.0);
-    glVertex2d(cubeSize / 2.0, -cubeSize / 2.0);
+    glVertex2d(-(n / 2.0) * cubeSize, 0);
+    glVertex2d((n / 2.0) * cubeSize, 0);
   glEnd();
-  glBegin(GL_LINES);
-    glVertex2d(cubeSize / 2.0, -cubeSize / 2.0);
-    glVertex2d(cubeSize / 2.0, cubeSize / 2.0);
-  glEnd();
-  glBegin(GL_LINES);
-    glVertex2d(cubeSize / 2.0, cubeSize / 2.0);
-    glVertex2d(-cubeSize / 2.0, cubeSize / 2.0);
-  glEnd();
-  glBegin(GL_LINES);
-    glVertex2d(-cubeSize / 2.0, cubeSize / 2.0);
-    glVertex2d(-cubeSize / 2.0, -cubeSize / 2.0);
-  glEnd();
+}
+void drawLines(int i)
+{
+  glTranslated(0, (n/2.0 - i - 1) * cubeSize, (n / 2.0) * cubeSize); drawLine();
+  glTranslated(0, 0, -n * cubeSize); drawLine();
+  glTranslated(0, 0, (n / 2.0) * cubeSize);
 }
 void drawCube(Cube &c)
 {
-  glLineWidth(1);
   for (int j = 0; j < n; j ++)
     for (int k = 0; k < n; k ++)
     {
@@ -134,12 +126,12 @@ void drawCube(Cube &c)
         glTranslated((n/2.0 - k - 0.5) * cubeSize, (n/2.0 - j - 0.5) * cubeSize, (n / 2.0) * cubeSize);
         glColor3dv(colorMap[cube.face[0][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-        if (BORDER) drawBorder();
+        
         // back
         glTranslated(0, 0, -n * cubeSize);
         glColor3dv(colorMap[cube.face[2][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-        if (BORDER) drawBorder();
+        
       glPopMatrix();
       glPushMatrix();
         // top
@@ -147,12 +139,12 @@ void drawCube(Cube &c)
         glTranslated((n/2.0 - k - 0.5) * cubeSize, (n/2.0 - j - 0.5) * cubeSize, (n / 2.0) * cubeSize);
         glColor3dv(colorMap[cube.face[1][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-        if (BORDER) drawBorder();
+        
         // down
         glTranslated(0, 0, -n * cubeSize);
         glColor3dv(colorMap[cube.face[3][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-        if (BORDER) drawBorder();
+        
       glPopMatrix();
       glPushMatrix();
         // right
@@ -160,14 +152,49 @@ void drawCube(Cube &c)
         glTranslated((n/2.0 - k - 0.5) * cubeSize, (n/2.0 - j - 0.5) * cubeSize, (n / 2.0) * cubeSize);
         glColor3dv(colorMap[cube.face[4][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-        if (BORDER) drawBorder();
+        
         // left
         glTranslated(0, 0, -n * cubeSize);
         glColor3dv(colorMap[cube.face[5][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-        if (BORDER) drawBorder();
+        
       glPopMatrix();
     }
+  if (BORDER)
+  {
+    glColor3ub(0, 0, 0); glLineWidth(3);
+    for (int i = 0; i < n - 1; i ++)
+    {
+      // horizontal
+      glPushMatrix();
+        drawLines(i);
+      glPopMatrix();
+      glPushMatrix();
+        glRotated(90, -1, 0, 0);
+        drawLines(i);
+      glPopMatrix();
+      glPushMatrix();
+        glRotated(90, 0, -1, 0);
+        drawLines(i);
+      glPopMatrix();
+
+      // vertical
+      glPushMatrix();
+        glRotated(90, 0, 0, 1);
+        glPushMatrix();
+          drawLines(i);
+        glPopMatrix();
+        glPushMatrix();
+          glRotated(90, -1, 0, 0);
+          drawLines(i);
+        glPopMatrix();
+        glPushMatrix();
+          glRotated(90, 0, -1, 0);
+          drawLines(i);
+        glPopMatrix();
+      glPopMatrix();
+    }
+  }
 }
 
 void display()
