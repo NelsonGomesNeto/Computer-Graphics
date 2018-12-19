@@ -16,6 +16,7 @@ const int width = 800, height = 800; const double pi = acos(-1);
 double xOffset = 0, yOffset = 0, zOffset = 0, xAngle = 0, yAngle = 0, zAngle = 0, diff = 0, xDiff = 0, yDiff = 0, cubeSize = 4.0 / n;
 double degToRad(double angle) { return(angle*pi/180.0); };
 Cube cube; Quaternions orientation = {1, 0, 0, 0}; double rotationMatrix[4][4]; int number = 1;
+bool BORDER = true;
 
 struct Point { int x, y; };
 Point mouse = {0, 0}; bool rotating = false, mouseRotating = false; int axis;
@@ -98,95 +99,71 @@ void drawSpaceVectors()
   glPopMatrix();
 }
 
-void drawPiece(Piece &piece, double size, int i, int j, int k)
+void drawBorder()
 {
-  glLineWidth(1);
   glColor3ub(0, 0, 0);
-  // glColor3ub(255, 255, 255);
-  glutWireCube(cubeSize);
-
-  if (i == 0)
-  {
-    glPushMatrix();
-      glTranslated(0, 0, cubeSize / 2.0);
-        glColor3dv(colorMap[piece.color[0]]);
-        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glPopMatrix();
-  }
-  else if (i == n - 1)
-  {
-    glPushMatrix();
-      glTranslated(0, 0, -cubeSize / 2.0);
-        glColor3dv(colorMap[piece.color[2]]);
-        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glPopMatrix();
-  }
-
-  if (j == 0)
-  {
-    glPushMatrix();
-      glRotated(90, 1, 0, 0);
-      glTranslated(0, 0, -cubeSize / 2.0);
-        glColor3dv(colorMap[piece.color[1]]);
-        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glPopMatrix();
-  }
-  else if (j == n - 1)
-  {
-    glPushMatrix();
-      glRotated(90, 1, 0, 0);
-      glTranslated(0, 0, cubeSize / 2.0);
-        glColor3dv(colorMap[piece.color[3]]);
-        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glPopMatrix();
-  }
-
-  if (k == 0)
-  {
-    glPushMatrix();
-      glRotated(90, 0, 1, 0);
-      glTranslated(0, 0, -cubeSize / 2.0);
-        glColor3dv(colorMap[piece.color[4]]);
-        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glPopMatrix();
-  }
-  else if (k == n - 1)
-  {
-    glPushMatrix();
-      glRotated(90, 0, 1, 0);
-      glTranslated(0, 0, cubeSize / 2.0);
-        glColor3dv(colorMap[piece.color[5]]);
-        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
-    glPopMatrix();
-  }
+  glBegin(GL_LINES);
+    glVertex2d(-cubeSize / 2.0, -cubeSize / 2.0);
+    glVertex2d(cubeSize / 2.0, -cubeSize / 2.0);
+  glEnd();
+  glBegin(GL_LINES);
+    glVertex2d(cubeSize / 2.0, -cubeSize / 2.0);
+    glVertex2d(cubeSize / 2.0, cubeSize / 2.0);
+  glEnd();
+  glBegin(GL_LINES);
+    glVertex2d(cubeSize / 2.0, cubeSize / 2.0);
+    glVertex2d(-cubeSize / 2.0, cubeSize / 2.0);
+  glEnd();
+  glBegin(GL_LINES);
+    glVertex2d(-cubeSize / 2.0, cubeSize / 2.0);
+    glVertex2d(-cubeSize / 2.0, -cubeSize / 2.0);
+  glEnd();
 }
 void drawCube(Cube &c)
 {
-  for (int i = 0; i < n; i ++)
-  {
-    if (i == 0 || i == n - 1)
+  glLineWidth(1);
+  for (int j = 0; j < n; j ++)
+    for (int k = 0; k < n; k ++)
     {
-      for (int j = 0; j < n; j ++)
-      {
-        for (int k = 0; k < n; k ++)
-        {
-          drawPiece(c.pieces[i][j][k], cubeSize, i, j, k);
-          glTranslated(cubeSize, 0, 0);
-        }
-        glTranslated(-n*cubeSize, -cubeSize, 0);
-      }
-      glTranslated(0, n*cubeSize, -cubeSize);
+      glPushMatrix();
+        // front
+        glTranslated((n/2.0 - k - 0.5) * cubeSize, (n/2.0 - j - 0.5) * cubeSize, (n / 2.0) * cubeSize);
+        glColor3dv(colorMap[cube.face[0][j][k]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        if (BORDER) drawBorder();
+        // back
+        glTranslated(0, 0, -n * cubeSize);
+        glColor3dv(colorMap[cube.face[2][j][k]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        if (BORDER) drawBorder();
+      glPopMatrix();
+      glPushMatrix();
+        // top
+        glRotated(90, -1, 0, 0);
+        glTranslated((n/2.0 - k - 0.5) * cubeSize, (n/2.0 - j - 0.5) * cubeSize, (n / 2.0) * cubeSize);
+        glColor3dv(colorMap[cube.face[1][j][k]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        if (BORDER) drawBorder();
+        // down
+        glTranslated(0, 0, -n * cubeSize);
+        glColor3dv(colorMap[cube.face[3][j][k]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        if (BORDER) drawBorder();
+      glPopMatrix();
+      glPushMatrix();
+        // right
+        glRotated(90, 0, -1, 0);
+        glTranslated((n/2.0 - k - 0.5) * cubeSize, (n/2.0 - j - 0.5) * cubeSize, (n / 2.0) * cubeSize);
+        glColor3dv(colorMap[cube.face[4][j][k]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        if (BORDER) drawBorder();
+        // left
+        glTranslated(0, 0, -n * cubeSize);
+        glColor3dv(colorMap[cube.face[5][j][k]]);
+        glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        if (BORDER) drawBorder();
+      glPopMatrix();
     }
-    else
-    {
-      int j = 0, k = 0;
-      while (k < n) { drawPiece(c.pieces[i][j][k], cubeSize, i, j, k); glTranslated(cubeSize, 0, 0); k ++; } glTranslated(-cubeSize, -cubeSize, 0), k --, j ++;
-      while (j < n) { drawPiece(c.pieces[i][j][k], cubeSize, i, j, k); glTranslated(0, -cubeSize, 0); j ++; } glTranslated(-cubeSize, cubeSize, 0), j --, k --;
-      while (k >= 0) { drawPiece(c.pieces[i][j][k], cubeSize, i, j, k); glTranslated(-cubeSize, 0, 0); k --; } glTranslated(cubeSize, cubeSize, 0), k ++, j --;
-      while (j >= 1) { drawPiece(c.pieces[i][j][k], cubeSize, i, j, k); glTranslated(0, cubeSize, 0); j --; }
-      glTranslated(0, 0, -cubeSize);
-    }
-  }
 }
 
 void display()
@@ -208,10 +185,6 @@ void display()
   glPushMatrix();
     orientation.fillMat4(rotationMatrix);
     glMultMatrixd(&rotationMatrix[0][0]);
-
-    glTranslated(-n / 2 * cubeSize + xOffset, n / 2 * cubeSize + yOffset, n / 2 * cubeSize + zOffset);
-
-    glColor3ub(0, 0, 255);
     drawCube(cube);
   glPopMatrix();
 
@@ -233,6 +206,7 @@ void init()
 {
   glClearColor(0, 0, 0, 0);
   glEnable(GL_DEPTH_TEST);
+  cube.initCube();
 }
 
 int main(int argc, char **argv)
