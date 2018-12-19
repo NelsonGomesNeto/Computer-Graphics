@@ -1,6 +1,5 @@
 #include <time.h>
 // 0 - face, 1 - top, 2 - back, 3 - down, 4 - left, 5 - right
-struct Piece { int color[6] = {0, 1, 2, 3, 4, 5}; };
 const double colorMap[6][3] = {{1, 1, 1}, {0, 0, 1}, {1, 241 / 255.0, 25 / 255.0}, {0, 1, 0}, {253 / 255.0, 126 / 255.0, 0}, {1, 0, 0}};
 const int n = 3; const int cycleSize = 2*n + 2*(n - 2);
 struct Cube { int face[6][n][n]; void initCube() { for (int i = 0; i < 6; i ++) for (int j = 0; j < n; j ++) for (int k = 0; k < n; k ++) face[i][j][k] = i; } };

@@ -7,7 +7,8 @@
 #include <math.h>
 #include <GL/freeglut.h>
 #include <vector>
-#include "cube.h"
+#include "solver.h"
+// #include "cube.h"
 #include "../printText.h"
 #include "../quaternions.h"
 using namespace std;
@@ -40,7 +41,9 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'w': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = 2; else rotating = false, diff = 0; break;
     case 'e': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = 3; else rotating = false, diff = 0; break;
     case 'a': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axis = 4; else mouseRotating = false, xDiff = yDiff = 0; break;
-    case 's': readScramble(cube); break;
+    case 'r': readScramble(cube); break;
+    case 's': bfs(cube); break;
+    case 'd': Astar(cube); break;
     case ' ': number = 0; break;
     default:
       if (key >= '0' && key <= '9')
