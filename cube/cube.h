@@ -1,8 +1,24 @@
 #include <time.h>
+#include <string>
+using namespace std;
 // 0 - face, 1 - top, 2 - back, 3 - down, 4 - left, 5 - right
 const double colorMap[6][3] = {{1, 1, 1}, {0, 0, 1}, {1, 241 / 255.0, 25 / 255.0}, {0, 1, 0}, {253 / 255.0, 126 / 255.0, 0}, {1, 0, 0}};
 const int n = 3; const int cycleSize = 2*n + 2*(n - 2);
-struct Cube { int face[6][n][n]; void initCube() { for (int i = 0; i < 6; i ++) for (int j = 0; j < n; j ++) for (int k = 0; k < n; k ++) face[i][j][k] = i; } };
+struct Cube
+{
+  int face[6][n][n];
+  void initCube() { for (int i = 0; i < 6; i ++) for (int j = 0; j < n; j ++) for (int k = 0; k < n; k ++) face[i][j][k] = i; }
+  string calculateHash() { string h = ""; for (int i = 0; i < 6; i ++) for (int j = 0; j < n; j ++) for (int k = 0; k < n; k ++) h += face[i][j][k]; return(h); }
+  bool operator<(const Cube& b) const
+  {
+    for (int i = 0; i < 6; i ++)
+      for (int j = 0; j < n; j ++)
+        for (int k = 0; k < n; k ++)
+          if (face[i][j][k] < b.face[i][j][k]) return(true);
+          else if (face[i][j][k] > b.face[i][j][k]) return(false);
+    return(true);
+  }
+};
 
 void rotateFace(int face[n][n], bool reverse)
 {
@@ -123,7 +139,7 @@ void randomScramble(Cube &c)
   for (int i = 0; i < 100; i ++)
   {
     int number = rand() % n;
-    moveCube(c, op[rand() % 6], number);
+    moveCube(c, op[rand() % 6], number == n / 2 ? number - 1 : number);
   }
 }
 void readScramble(Cube &c)

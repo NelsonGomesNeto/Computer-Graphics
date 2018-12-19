@@ -43,7 +43,7 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'a': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axis = 4; else mouseRotating = false, xDiff = yDiff = 0; break;
     case 'r': readScramble(cube); break;
     case 's': bfs(cube); break;
-    case 'd': Astar(cube); break;
+    case 'd': solve(cube); break;
     case ' ': number = 0; break;
     default:
       if (key >= '0' && key <= '9')
