@@ -105,7 +105,7 @@ void display()
   printText("Blocks: " + to_string(blocks.size()) + " Waves: " + to_string(waves.size()), 100, height - 100);
 
   if (blocks.size())
-    for (int i = 0, ac = 0, sc = rainbowSize / min(blocks.size(), rainbowSize); i < blocks.size(); i++, ac += sc)
+    for (int i = 0, ac = 0, sc = rainbowSize / min((int)blocks.size(), rainbowSize); i < blocks.size(); i++, ac += sc)
     {
       glBegin(GL_QUADS);
       glColor3dv(rainbowArray[ac % rainbowSize]);

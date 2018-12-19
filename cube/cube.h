@@ -1,3 +1,4 @@
+#include <time.h>
 // 0 - face, 1 - top, 2 - back, 3 - down, 4 - left, 5 - right
 struct Piece { int color[6] = {0, 1, 2, 3, 4, 5}; };
 const double colorMap[6][3] = {{1, 1, 1}, {0, 0, 1}, {1, 241 / 255.0, 25 / 255.0}, {0, 1, 0}, {253 / 255.0, 126 / 255.0, 0}, {1, 0, 0}};
@@ -110,9 +111,27 @@ void moveCube(Cube &c, unsigned char key, int number)
 
     case 'U': moveU(c, number, (number > n / 2) - false); break;
     case 'u': moveU(c, number, (number > n / 2) - true); break;
-    
+
     case 'F': moveF(c, number, (number > n / 2) - false); break;
     case 'f': moveF(c, number, (number > n / 2) - true); break;
     default: break;
   }
+}
+
+void randomScramble(Cube &c)
+{
+  srand(time(NULL)); char op[7] = "RUFruf";
+  for (int i = 0; i < 100; i ++)
+  {
+    int number = rand() % n;
+    moveCube(c, op[rand() % 6], number);
+  }
+}
+void readScramble(Cube &c)
+{
+  randomScramble(c); return;
+  int number; char op;
+  FILE *scrambleFile = fopen("cube/scramble", "r"); if (scrambleFile == NULL) return;
+  while (fscanf(scrambleFile, "%d%c", &number, &op) != EOF) moveCube(c, op, number - 1);
+  fclose(scrambleFile);
 }

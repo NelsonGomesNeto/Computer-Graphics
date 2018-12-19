@@ -17,7 +17,7 @@ int petalsAmount = 4;
 
 void passiveMotionHandler(int x, int y)
 {
-  diff = (y - mouse.y) / 1.0 * 100;
+  diff = (y - mouse.y) / 100.0;
 }
 
 void keyboardHandler(unsigned char key, int x, int y)
