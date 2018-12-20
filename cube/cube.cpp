@@ -41,9 +41,9 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'w': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = 2; else rotating = false, diff = 0; break;
     case 'e': if (!rotating) rotating = true, mouse.x = x, mouse.y = y, axis = 3; else rotating = false, diff = 0; break;
     case 'a': if (!mouseRotating) mouseRotating = true, mouse.x = x, mouse.y = y, axis = 4; else mouseRotating = false, xDiff = yDiff = 0; break;
-    case 'r': readScramble(cube); break;
-    case 's': bfs(cube); break;
-    case 'd': solve(cube); break;
+    case 'd': readScramble(cube); break;
+    // case '2': bfs(cube); break;
+    case 's': solve(cube); break;
     case ' ': number = 0; break;
     default:
       if (key >= '0' && key <= '9')
@@ -126,11 +126,17 @@ void drawCube(Cube &c)
         glTranslated((n/2.0 - k - 0.5) * cubeSize, (n/2.0 - j - 0.5) * cubeSize, (n / 2.0) * cubeSize);
         glColor3dv(colorMap[cube.face[0][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        glPushMatrix();
+          glColor3ub(0, 0, 0); glTranslated(0, 0, cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+        glPopMatrix();
         
         // back
         glTranslated(0, 0, -n * cubeSize);
         glColor3dv(colorMap[cube.face[2][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        glPushMatrix();
+          glColor3ub(0, 0, 0); glTranslated(0, 0, -cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+        glPopMatrix();
         
       glPopMatrix();
       glPushMatrix();
@@ -139,11 +145,17 @@ void drawCube(Cube &c)
         glTranslated((n/2.0 - k - 0.5) * cubeSize, (n/2.0 - j - 0.5) * cubeSize, (n / 2.0) * cubeSize);
         glColor3dv(colorMap[cube.face[1][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        glPushMatrix();
+          glColor3ub(0, 0, 0); glTranslated(0, 0, cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+        glPopMatrix();
         
         // down
         glTranslated(0, 0, -n * cubeSize);
         glColor3dv(colorMap[cube.face[3][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        glPushMatrix();
+          glColor3ub(0, 0, 0); glTranslated(0, 0, -cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+        glPopMatrix();
         
       glPopMatrix();
       glPushMatrix();
@@ -152,11 +164,17 @@ void drawCube(Cube &c)
         glTranslated((n/2.0 - k - 0.5) * cubeSize, (n/2.0 - j - 0.5) * cubeSize, (n / 2.0) * cubeSize);
         glColor3dv(colorMap[cube.face[4][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        glPushMatrix();
+          glColor3ub(0, 0, 0); glTranslated(0, 0, cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+        glPopMatrix();
         
         // left
         glTranslated(0, 0, -n * cubeSize);
         glColor3dv(colorMap[cube.face[5][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
+        glPushMatrix();
+          glColor3ub(0, 0, 0); glTranslated(0, 0, -cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+        glPopMatrix();
         
       glPopMatrix();
     }

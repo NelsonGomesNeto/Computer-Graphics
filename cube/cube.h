@@ -16,7 +16,7 @@ struct Cube
         for (int k = 0; k < n; k ++)
           if (face[i][j][k] < b.face[i][j][k]) return(true);
           else if (face[i][j][k] > b.face[i][j][k]) return(false);
-    return(true);
+    return(false);
   }
 };
 

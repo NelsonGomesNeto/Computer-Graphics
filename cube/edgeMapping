@@ -1,0 +1,47 @@
+// 0 | face - top
+c.face[0][0][i];
+c.face[1][2][i];
+
+// 1 | face - right
+c.face[0][i][0];
+c.face[5][i][0];
+
+// 2 | face - down
+c.face[0][2][i];
+c.face[3][2][i];
+
+// 3 | face - left
+c.face[0][i][2];
+c.face[4][i][0];
+
+// 4 | right - top
+c.face[5][0][i];
+c.face[1][n - 1 - i][0];
+
+// 5 | right - back
+c.face[5][i][2];
+c.face[2][i][0];
+
+// 6 | right - down
+c.face[5][2][i];
+c.face[3][n - 1 - i][0];
+
+// 7 | top - back
+c.face[1][0][i];
+c.face[2][0][i];
+
+// 8 | top - left
+c.face[1][i][2];
+c.face[4][0][n - 1 - i];
+
+// 9 | left - back
+c.face[4][i][2];
+c.face[2][i][2];
+
+// 10 | left - down
+c.face[4][2][i];
+c.face[3][n - 1 - i][2];
+
+// 11 | down - back
+c.face[3][0][i];
+c.face[2][2][i];
