@@ -7,9 +7,9 @@
 #include <GL/freeglut.h>
 #include <complex>
 using namespace std;
-const int width = 800, height = 800;
-int w = 800, h = 800;
-double dw = 1, dh = 1, sw = 0, sh = 0;
+const int width = 1000, height = 1000;
+int w = width, h = height;
+double dw = 1, dh = 1, sw = 0, sh = 0, limit = 1e3;
 int steps = 10;
 bool bitmap[10001][10001];
 
@@ -20,7 +20,7 @@ bool diverges(complex<double> c)
   for (int i = 0; i < steps; i ++)
   {
     complex<double> res = f(c, z);
-    if (res.real() < -1e9 || res.real() > 1e9 || res.imag() < -1e9 || res.imag() > 1e9) return(true);
+    if (res.real() < -limit || res.real() > limit || res.imag() < -limit || res.imag() > limit) return(true);
     z = res;
   }
   return(false);
@@ -50,6 +50,10 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'd': sw -= 10*dw; break;
     case 'w': sh += 10*dh; break;
     case 's': sh -= 10*dh; break;
+    case 'f': w ++; break;
+    case 'F': w --; break;
+    case 'g': h ++; break;
+    case 'G': h --; break;
     default: break;
   }
 }
@@ -66,14 +70,11 @@ void display()
   glClear(GL_COLOR_BUFFER_BIT);
 
   glColor3ub(0, 0, 100);
-  printText(to_string(dw) + " - " + to_string(dh), 400, 100);
+  glColor3ub(255, 255, 255);
   for (int i = 0; i <= h; i ++)
     for (int j = 0; j <= w; j ++)
-    {
-      if (bitmap[i][j]) glColor3ub(0, 0, 0);
-      else glColor3ub(255, 255, 255);
-      glRectd(j * (double) width / w, i * (double) height / h, (j + 1) * (double) width / w, (i + 1) * (double) height / h);
-    }
+      if (bitmap[i][j])
+        glRectd(j * (double) width / w, i * (double) height / h, (j + 1) * (double) width / w, (i + 1) * (double) height / h);
 
   glutSwapBuffers();
 }
