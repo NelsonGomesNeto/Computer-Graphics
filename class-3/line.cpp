@@ -14,8 +14,7 @@ Line line;
 
 void readLine()
 {
-  FILE *file = fopen("class-4/in", "r");
-  printf("%p\n", file);
+  FILE *file = fopen("class-3/in", "r");
   fscanf(file, "%lf %lf %lf %lf", &line.pi.x, &line.pi.y, &line.pf.x, &line.pf.y);
   fclose(file);
 }
@@ -25,6 +24,7 @@ void keyboardHandler(unsigned char key, int x, int y)
   switch (key)
   {
     case 'r': line.pf.x = x, line.pf.y = height - y; break;
+    case 'a': readLine(); break;
     default:
       break;
   }
@@ -40,40 +40,43 @@ void simpleLineAlgorithm()
 void bresenham()
 {
   Line aux = line;
-  line.pi.x += 400, line.pf.x += 400;
+  // line.pi.x += 400, line.pf.x += 400;
   // If the line is steeper, we better swap x by y and continue drawing going up
   bool steep = abs(line.pf.y - line.pi.y) > abs(line.pf.x - line.pi.x);
   if (steep) swap(line.pi.x, line.pi.y), swap(line.pf.x, line.pf.y);
   if (line.pi.x > line.pf.x) swap(line.pi.x, line.pf.x), swap(line.pi.y, line.pf.y);
-  // printf("(%3.3lf, %3.3lf) -> (%3.3lf, %3.3lf)\n", line.pi.x, line.pi.y, line.pf.x, line.pf.y);
+  printf("(%3.3lf, %3.3lf) -> (%3.3lf, %3.3lf)\n", line.pi.x, line.pi.y, line.pf.x, line.pf.y);
 
   int dx, dy, E, NE, d, x, y, yStep = line.pi.y > line.pf.y ? -1 : 1;
   dx = line.pf.x - line.pi.x, dy = line.pf.y - line.pi.y;
   d = 2 * dy - dx;
   E = 2 * dy, NE = 2 * (dy - dx);
   x = line.pi.x, y = line.pi.y;
-  glVertex2d(x, y);
+  glRectd(x - 0.5, y - 0.5, x + 0.5, y + 0.5);
+  // glVertex2d(x, y);
   while (x < line.pf.x)
   {
     if (d <= 0) d += E, x ++;
     else d += NE, x ++, y += yStep;
-    if (steep) glVertex2d(y, x); else glVertex2d(x, y);
+    printf("(%d, %d)\n", x, y);
+    // if (steep) glVertex2d(y, x); else glVertex2d(x, y);
+    if (steep) glRectd(y - 0.5, x - 0.5, y + 0.5, x + 0.5); else glRectd(x - 0.5, y - 0.5, x + 0.5, y + 0.5);
   }
   line = aux;
 }
 
 void drawLine()
 {
-  glBegin(GL_POINTS);
+  // glBegin(GL_POINTS);
     simpleLineAlgorithm();
     bresenham();
-  glEnd();
+  // glEnd();
 }
 
 void scheduleUpdate(int value)
 {
-  glutTimerFunc(10, scheduleUpdate, 1);
-  glutPostRedisplay();
+  // glutTimerFunc(10, scheduleUpdate, 1);
+  // glutPostRedisplay();
 }
 
 void display()
@@ -88,7 +91,7 @@ void display()
 
 void init()
 {
-  gluOrtho2D(0, width, 0, height);
+  gluOrtho2D(0, 10, 0, 10);
 }
 
 int main(int argc, char **argv)
