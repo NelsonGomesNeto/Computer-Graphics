@@ -12,6 +12,7 @@
 #include "../printText.h"
 #include "../quaternions.h"
 using namespace std;
+#define PRINTCOORDINATES if(0)
 
 const int width = 800, height = 800; const double pi = acos(-1);
 double xOffset = 0, yOffset = 0, zOffset = 0, xAngle = 0, yAngle = 0, zAngle = 0, diff = 0, xDiff = 0, yDiff = 0, cubeSize = 4.0 / n;
@@ -127,17 +128,19 @@ void drawCube(Cube &c)
         glColor3dv(colorMap[cube.face[0][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
         glPushMatrix();
-          glColor3ub(0, 0, 0); glTranslated(0, 0, cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+          glColor3ub(0, 0, 0); glTranslated(0, 0, cubeSize/3.0);
+          PRINTCOORDINATES printText(to_string(j) + ", " + to_string(k), 0, 0);
         glPopMatrix();
-        
+
         // back
         glTranslated(0, 0, -n * cubeSize);
         glColor3dv(colorMap[cube.face[2][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
         glPushMatrix();
-          glColor3ub(0, 0, 0); glTranslated(0, 0, -cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+          glColor3ub(0, 0, 0); glTranslated(0, 0, -cubeSize/3.0);
+          PRINTCOORDINATES printText(to_string(j) + ", " + to_string(k), 0, 0);
         glPopMatrix();
-        
+
       glPopMatrix();
       glPushMatrix();
         // top
@@ -146,17 +149,19 @@ void drawCube(Cube &c)
         glColor3dv(colorMap[cube.face[1][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
         glPushMatrix();
-          glColor3ub(0, 0, 0); glTranslated(0, 0, cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+          glColor3ub(0, 0, 0); glTranslated(0, 0, cubeSize/3.0);
+          PRINTCOORDINATES printText(to_string(j) + ", " + to_string(k), 0, 0);
         glPopMatrix();
-        
+
         // down
         glTranslated(0, 0, -n * cubeSize);
         glColor3dv(colorMap[cube.face[3][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
         glPushMatrix();
-          glColor3ub(0, 0, 0); glTranslated(0, 0, -cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+          glColor3ub(0, 0, 0); glTranslated(0, 0, -cubeSize/3.0);
+          PRINTCOORDINATES printText(to_string(j) + ", " + to_string(k), 0, 0);
         glPopMatrix();
-        
+
       glPopMatrix();
       glPushMatrix();
         // right
@@ -165,17 +170,19 @@ void drawCube(Cube &c)
         glColor3dv(colorMap[cube.face[4][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
         glPushMatrix();
-          glColor3ub(0, 0, 0); glTranslated(0, 0, cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+          glColor3ub(0, 0, 0); glTranslated(0, 0, cubeSize/3.0);
+          PRINTCOORDINATES printText(to_string(j) + ", " + to_string(k), 0, 0);
         glPopMatrix();
-        
+
         // left
         glTranslated(0, 0, -n * cubeSize);
         glColor3dv(colorMap[cube.face[5][j][k]]);
         glRectd(-cubeSize / 2.0, -cubeSize / 2.0, cubeSize / 2.0, cubeSize / 2.0);
         glPushMatrix();
-          glColor3ub(0, 0, 0); glTranslated(0, 0, -cubeSize/3.0); printText(to_string(j) + ", " + to_string(k), 0, 0);
+          glColor3ub(0, 0, 0); glTranslated(0, 0, -cubeSize/3.0);
+          PRINTCOORDINATES printText(to_string(j) + ", " + to_string(k), 0, 0);
         glPopMatrix();
-        
+
       glPopMatrix();
     }
   if (BORDER)
