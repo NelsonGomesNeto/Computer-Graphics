@@ -10,8 +10,9 @@ using namespace std;
 const int width = 800, height = 800;
 int xAngle, yAngle;
 struct Point { double x, y, z; };
+Point camera = {0, 0, 0};
 vector<Point> vertices;
-static GLubyte frenteIndices[]    = {0,4,3,2,1};
+static GLubyte frenteIndices[]    = {0,4,3,2};
 static GLubyte trasIndices[]      = {5,6,7,8};
 static GLubyte esquerdaIndices[]  = {0,5,8,4};
 static GLubyte direitaIndices[]   = {2,3,7,10};
@@ -37,6 +38,27 @@ void loadVertices()
   fclose(file);
 }
 
+void specialFuncHandler(int key, int x, int y)
+{
+  switch (key)
+  {
+    case GLUT_KEY_UP:
+      camera.z -= 0.50;
+      break;
+    case GLUT_KEY_DOWN:
+      camera.z += 0.50;
+      break;
+    case GLUT_KEY_RIGHT:
+      camera.x += 0.50;
+      break;
+    case GLUT_KEY_LEFT:
+      camera.x -= 0.50;
+      break;
+    default:
+      break;
+  }
+}
+
 void keyboardHandler(unsigned char key, int x, int y)
 {
   switch (key)
@@ -53,6 +75,8 @@ void keyboardHandler(unsigned char key, int x, int y)
     case 'W':
       yAngle = (yAngle - 5) % 360;
       break;
+    case 'c':
+      xAngle = yAngle = 0;
     default:
       break;
   }
@@ -71,8 +95,18 @@ void drawPolygon(GLubyte indexes[], int size)
 {
   if (size > vertices.size()) return;
   glBegin(GL_POLYGON);
-  for (int i = 0; i < size; i ++)
-    glVertex3d(vertices[indexes[i]].x, vertices[indexes[i]].y, vertices[indexes[i]].z);
+    for (int i = 0; i < size; i ++)
+      glVertex3d(vertices[indexes[i]].x, vertices[indexes[i]].y, vertices[indexes[i]].z);
+  glEnd();
+
+  glColor3ub(0, 0, 0);
+  // glLineWidth(10);
+  glBegin(GL_LINES);
+    for (int i = 0; i < size; i ++)
+    {
+      glVertex3d(vertices[indexes[i]].x, vertices[indexes[i]].y, vertices[indexes[i]].z);
+      glVertex3d(vertices[indexes[(i+1)%size]].x, vertices[indexes[(i+1)%size]].y, vertices[indexes[(i+1)%size]].z);
+    }
   glEnd();
 }
 
@@ -80,11 +114,27 @@ void display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  // gluLookAt(0 + camera.x, 0 + camera.y, -90 + camera.z, 0 + camera.x, 0 + camera.y, 0 + camera.z, 0, 1, 0);
   glPushMatrix();
-    glRotated(yAngle, 0, 1, 0);
-    glRotated(xAngle, 1, 0, 0);
+  glTranslated(0, 0, -90);
+  glRotated(yAngle, 0, 1, 0);
+  glRotated(xAngle, 1, 0, 0);
+  glTranslated(camera.x, camera.y, camera.z);
+  glTranslated(0, 0, 90);
+
+  // glPointSize(200);
+  // glColor3ub(255, 255, 255);
+  // glBegin(GL_POINTS);
+  //   glVertex3d(0, 0, 0);
+  // glEnd();
+  // glPointSize(1);
+
+  glPushMatrix();
+    // glRotated(yAngle, 0, 1, 0);
+    // glRotated(xAngle, 1, 0, 0);
+    glTranslated(-vertices[11].x, -vertices[11].y / 2.0, -vertices[11].z);
     glColor3f (AZUL); /* frente */
-    drawPolygon(frenteIndices, 5);
+    drawPolygon(frenteIndices, 4);
 
     glColor3f (AMARELO); /* esquerda */
     drawPolygon(esquerdaIndices, 4);
@@ -95,22 +145,19 @@ void display()
     glColor3f (VERDE); /* direita */
     drawPolygon(direitaIndices, 4);
 
-    glColor3f (CYAN); /* topo */
-    drawPolygon(topoIndices, 5);
-
     glColor3f (LARANJA); /* fundo */
     drawPolygon(fundoIndices, 4);
 
-    glColor3f (CINZA); /* triangulo */
-    drawPolygon(trianguloIndices, 3);
     glPushMatrix();
       glTranslated(vertices[11].x, vertices[11].y, vertices[11].z);
-      for (int i = 0; i < 3; i ++)
+      for (int i = 0; i < 4; i ++)
       {
-        glRotated(90, 0, 1, 0);
+        glColor3f (CINZA); /* triangulo */
         drawPolygon(trianguloIndices, 3);
+        glRotated(90, 0, 1, 0);
       }
     glPopMatrix();
+  glPopMatrix();
   glPopMatrix();
 
   glutSwapBuffers();
@@ -125,7 +172,7 @@ void init()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   gluPerspective(65.0, (GLfloat) width/(GLfloat) height, 20.0, 120.0);
-    gluLookAt(0, 0, -90, 0, 0, 0, 0, 1, 0);
+  gluLookAt(0, 0, -90, 0, 0, 0, 0, 1, 0);
   // gluPerspective(60, (double) width / height, 1, 20);
   // gluLookAt(5, 5, 6, 0, 0, 0, 0, 1, 0);
 }
@@ -141,5 +188,6 @@ int main(int argc, char **argv)
   glutDisplayFunc(display);
   glutTimerFunc(10, scheduleUpdate, 1);
   glutKeyboardFunc(keyboardHandler);
+  glutSpecialFunc(specialFuncHandler);
   glutMainLoop();
 }

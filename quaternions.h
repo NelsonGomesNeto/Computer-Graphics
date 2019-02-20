@@ -28,7 +28,7 @@ struct Quaternions
     // mat[0][1] = 2*(x*y + u*z), mat[1][1] = 1 - 2*(x*x + z*z), mat[2][1] = 2*(y*z - u*x), mat[3][1] = 0;
     // mat[0][2] = 2*(x*z - u*y), mat[1][2] = 2*(u*x + y*z), mat[2][2] = 1 - 2*(x*x + y*y), mat[3][2] = 0;
     // mat[0][3] = mat[1][3] = mat[2][3] = 0, mat[3][3] = 1;
-    // Matrices are transposed on OpenGL; surprisingly this particular mat rotates theta and mat^T rotates -theta
+    // // Matrices are transposed on OpenGL; surprisingly this particular mat rotates theta and mat^T rotates -theta
   }
   void normalize()
   {
