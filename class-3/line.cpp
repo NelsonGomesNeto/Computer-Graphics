@@ -48,7 +48,7 @@ void bresenham()
   printf("(%3.3lf, %3.3lf) -> (%3.3lf, %3.3lf)\n", line.pi.x, line.pi.y, line.pf.x, line.pf.y);
 
   int dx, dy, E, NE, d, x, y, yStep = line.pi.y > line.pf.y ? -1 : 1;
-  dx = line.pf.x - line.pi.x, dy = line.pf.y - line.pi.y;
+  dx = line.pf.x - line.pi.x, dy = abs(ine.pf.y - line.pi.y);
   d = 2 * dy - dx;
   E = 2 * dy, NE = 2 * (dy - dx);
   x = line.pi.x, y = line.pi.y;
