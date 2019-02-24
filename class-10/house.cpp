@@ -5,12 +5,14 @@
 #endif
 #include <stdio.h>
 #include <GL/freeglut.h>
+#include <math.h>
+#include <vector>
 #include <algorithm>
 using namespace std;
 const int width = 800, height = 800;
-int xAngle, yAngle;
+double angle = 0, distanceX = 0, distanceZ = 90, distanceBase = 90;
 struct Point { double x, y, z; };
-Point camera = {0, 0, 0};
+Point camera = {0, 0, -90};
 vector<Point> vertices;
 static GLubyte frenteIndices[]    = {0,4,3,2};
 static GLubyte trasIndices[]      = {5,6,7,8};
@@ -43,16 +45,20 @@ void specialFuncHandler(int key, int x, int y)
   switch (key)
   {
     case GLUT_KEY_UP:
-      camera.z -= 0.50;
+      camera.z += 2 * cos(angle);
+      camera.x += 2 * sin(angle);
       break;
     case GLUT_KEY_DOWN:
-      camera.z += 0.50;
+      camera.z -= 2 * cos(angle);
+      camera.x -= 2 * sin(angle);
       break;
     case GLUT_KEY_RIGHT:
-      camera.x += 0.50;
+      camera.x -= 2 * cos(angle);
+      camera.z += 2 * sin(angle);
       break;
     case GLUT_KEY_LEFT:
-      camera.x -= 0.50;
+      camera.x += 2 * cos(angle);
+      camera.z -= 2 * sin(angle);
       break;
     default:
       break;
@@ -64,22 +70,25 @@ void keyboardHandler(unsigned char key, int x, int y)
   switch (key)
   {
     case 'q':
-      xAngle = (xAngle + 5) % 360;
+      angle += 0.05;
       break;
     case 'w':
-      yAngle = (yAngle + 5) % 360;
+      angle -= 0.05;
       break;
-    case 'Q':
-      xAngle = (xAngle - 5) % 360;
+    case 'y':
+      camera.y -= 0.50;
       break;
-    case 'W':
-      yAngle = (yAngle - 5) % 360;
+    case 'Y':
+      camera.y += 0.50;
       break;
     case 'c':
-      xAngle = yAngle = 0;
+      angle = 0;
+      break;
     default:
       break;
   }
+  distanceX = sin(angle) * distanceBase;
+  distanceZ = cos(angle) * distanceBase;
   glutPostRedisplay();
 }
 
@@ -110,28 +119,11 @@ void drawPolygon(GLubyte indexes[], int size)
   glEnd();
 }
 
-void display()
+void drawHouse()
 {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  // gluLookAt(0 + camera.x, 0 + camera.y, -90 + camera.z, 0 + camera.x, 0 + camera.y, 0 + camera.z, 0, 1, 0);
-  glPushMatrix();
-  glTranslated(0, 0, -90);
-  glRotated(yAngle, 0, 1, 0);
-  glRotated(xAngle, 1, 0, 0);
-  glTranslated(camera.x, camera.y, camera.z);
-  glTranslated(0, 0, 90);
-
-  // glPointSize(200);
-  // glColor3ub(255, 255, 255);
-  // glBegin(GL_POINTS);
-  //   glVertex3d(0, 0, 0);
-  // glEnd();
-  // glPointSize(1);
-
   glPushMatrix();
     // glRotated(yAngle, 0, 1, 0);
-    // glRotated(xAngle, 1, 0, 0);
+    // glRotated(angle, 1, 0, 0);
     glTranslated(-vertices[11].x, -vertices[11].y / 2.0, -vertices[11].z);
     glColor3f (AZUL); /* frente */
     drawPolygon(frenteIndices, 4);
@@ -158,8 +150,21 @@ void display()
       }
     glPopMatrix();
   glPopMatrix();
-  glPopMatrix();
+}
 
+void display()
+{
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glLoadIdentity();
+  gluPerspective(65.0, (GLfloat) width/(GLfloat) height, 20.0, 180.0);
+  gluLookAt(camera.x, camera.y, camera.z,
+            camera.x + distanceX, camera.y, camera.z + distanceZ,
+            0, 1, 0);
+
+  drawHouse();
+
+  glFlush();
   glutSwapBuffers();
 }
 
