@@ -9,10 +9,80 @@
 #include <vector>
 #include <algorithm>
 using namespace std;
+bool specialKeyPressed[256], keyPressed[256];
 const int width = 800, height = 800;
-double angle = 0, distanceX = 0, distanceZ = 90, distanceBase = 90;
-struct Point { double x, y, z; };
-Point camera = {0, 0, -90};
+double distanceX = 0, distanceZ = 90, distanceBase = 90, maxSpeed = 0.5;
+struct Point
+{
+  double x, y, z;
+  Point operator+(const Point &a) { return(Point({x + a.x, y + a.y, z + a.z})); }
+  void operator+=(const Point &a) { x += a.x, y += a.y, z += a.z; }
+  void operator*=(const double a) { x *= a, y *= a, z *= a; }
+  void limit(double l)
+  {
+    double mag = sqrt(x*x + y*y + z*z);
+    if (mag > 1e-5)
+      x *= l / mag, y *= l / mag, z *= l / mag;
+  }
+  void print()
+  {
+    printf("%.3lf %.3lf %.3lf\n", x, y, z);
+  }
+};
+struct Camera
+{
+  Point position, speed, acceleration;
+  double angle = 0, cosAngle = 1, sinAngle = 0, angularSpeed = 0, angularAcceleration = 0;
+  void getMovement()
+  {
+    if (specialKeyPressed[GLUT_KEY_UP] || specialKeyPressed[GLUT_KEY_DOWN] || specialKeyPressed[GLUT_KEY_RIGHT] || specialKeyPressed[GLUT_KEY_LEFT])
+    {
+      if (specialKeyPressed[GLUT_KEY_UP])
+        acceleration.z += +0.05 * cosAngle, acceleration.x += +0.05 * sinAngle;
+      if (specialKeyPressed[GLUT_KEY_DOWN])
+        acceleration.z += -0.05 * cosAngle, acceleration.x += -0.05 * sinAngle;
+      if (specialKeyPressed[GLUT_KEY_RIGHT])
+        acceleration.x += -0.05 * cosAngle, acceleration.z += +0.05 * sinAngle;
+      if (specialKeyPressed[GLUT_KEY_LEFT])
+        acceleration.x += +0.05 * cosAngle, acceleration.z += -0.05 * sinAngle;
+      acceleration.limit(0.05);
+    }
+    else acceleration *= 0.0, speed *= 0.0;
+
+    if (keyPressed['q'] || keyPressed['w'])
+    {
+      if (keyPressed['q'])
+        angularAcceleration = +0.001;
+      if (keyPressed['w'])
+        angularAcceleration = -0.001;
+    }
+    else angularAcceleration = angularSpeed = 0;
+
+    if (keyPressed['y'])
+      position.y -= 0.50;
+    if (keyPressed['Y'])
+      position.y += 0.50;
+    if (keyPressed['c'])
+      angle = 0;
+  }
+  void update()
+  {
+    speed += acceleration;
+    speed.limit(maxSpeed);
+    position += speed;
+    angularSpeed += angularAcceleration;
+    angularSpeed = angularSpeed < -0.04 ? -0.04 : angularSpeed > 0.04 ? 0.04 : angularSpeed;
+    angle += angularSpeed;
+    if (angularSpeed != 0)
+    {
+      cosAngle = cos(angle), sinAngle = sin(angle);
+      distanceX = sinAngle * distanceBase, distanceZ = cosAngle * distanceBase;
+    }
+    // printf("speed: "); speed.print();
+    // printf("position: "); position.print();
+  }
+};
+Camera camera = {{0, 0, -90}, {0, 0, 0}, {0, 0, 0}};
 vector<Point> vertices;
 static GLubyte frenteIndices[]    = {0,4,3,2};
 static GLubyte trasIndices[]      = {5,6,7,8};
@@ -40,63 +110,17 @@ void loadVertices()
   fclose(file);
 }
 
-void specialFuncHandler(int key, int x, int y)
-{
-  switch (key)
-  {
-    case GLUT_KEY_UP:
-      camera.z += 2 * cos(angle);
-      camera.x += 2 * sin(angle);
-      break;
-    case GLUT_KEY_DOWN:
-      camera.z -= 2 * cos(angle);
-      camera.x -= 2 * sin(angle);
-      break;
-    case GLUT_KEY_RIGHT:
-      camera.x -= 2 * cos(angle);
-      camera.z += 2 * sin(angle);
-      break;
-    case GLUT_KEY_LEFT:
-      camera.x += 2 * cos(angle);
-      camera.z -= 2 * sin(angle);
-      break;
-    default:
-      break;
-  }
-}
-
-void keyboardHandler(unsigned char key, int x, int y)
-{
-  switch (key)
-  {
-    case 'q':
-      angle += 0.05;
-      break;
-    case 'w':
-      angle -= 0.05;
-      break;
-    case 'y':
-      camera.y -= 0.50;
-      break;
-    case 'Y':
-      camera.y += 0.50;
-      break;
-    case 'c':
-      angle = 0;
-      break;
-    default:
-      break;
-  }
-  distanceX = sin(angle) * distanceBase;
-  distanceZ = cos(angle) * distanceBase;
-  glutPostRedisplay();
-}
-
+void specialFuncHandler(int key, int x, int y) { specialKeyPressed[key] = true; }
+void specialFuncUpHandler(int key, int x, int y) { specialKeyPressed[key] = false; }
+void keyboardHandler(unsigned char key, int x, int y) { keyPressed[key] = true; }
+void keyboardUpHandler(unsigned char key, int x, int y) { keyPressed[key] = false; }
 
 void scheduleUpdate(int value)
 {
   glutTimerFunc(10, scheduleUpdate, 1);
   loadVertices();
+  camera.getMovement();
+  camera.update();
   glutPostRedisplay();
 }
 
@@ -122,8 +146,6 @@ void drawPolygon(GLubyte indexes[], int size)
 void drawHouse()
 {
   glPushMatrix();
-    // glRotated(yAngle, 0, 1, 0);
-    // glRotated(angle, 1, 0, 0);
     glTranslated(-vertices[11].x, -vertices[11].y / 2.0, -vertices[11].z);
     glColor3f (AZUL); /* frente */
     drawPolygon(frenteIndices, 4);
@@ -158,8 +180,8 @@ void display()
 
   glLoadIdentity();
   gluPerspective(65.0, (GLfloat) width/(GLfloat) height, 20.0, 180.0);
-  gluLookAt(camera.x, camera.y, camera.z,
-            camera.x + distanceX, camera.y, camera.z + distanceZ,
+  gluLookAt(camera.position.x, camera.position.y, camera.position.z,
+            camera.position.x + distanceX, camera.position.y, camera.position.z + distanceZ,
             0, 1, 0);
 
   drawHouse();
@@ -193,6 +215,8 @@ int main(int argc, char **argv)
   glutDisplayFunc(display);
   glutTimerFunc(10, scheduleUpdate, 1);
   glutKeyboardFunc(keyboardHandler);
+  glutKeyboardUpFunc(keyboardUpHandler);
   glutSpecialFunc(specialFuncHandler);
+  glutSpecialUpFunc(specialFuncUpHandler);
   glutMainLoop();
 }
