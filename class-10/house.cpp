@@ -11,7 +11,8 @@
 using namespace std;
 bool specialKeyPressed[256], keyPressed[256];
 const int width = 800, height = 800;
-double distanceX = 0, distanceZ = 90, distanceBase = 90, maxSpeed = 0.5;
+const int widthd2 = width / 2, heightd2 = height / 2;
+double angleY = 0, distanceX = 0, distanceZ = 90, distanceBase = 90, maxSpeed = 0.5;
 struct Point
 {
   double x, y, z;
@@ -35,25 +36,25 @@ struct Camera
   double angle = 0, cosAngle = 1, sinAngle = 0, angularSpeed = 0, angularAcceleration = 0;
   void getMovement()
   {
-    if (specialKeyPressed[GLUT_KEY_UP] || specialKeyPressed[GLUT_KEY_DOWN] || specialKeyPressed[GLUT_KEY_RIGHT] || specialKeyPressed[GLUT_KEY_LEFT])
+    if (keyPressed['w'] || keyPressed['s'] || keyPressed['d'] || keyPressed['a'])
     {
-      if (specialKeyPressed[GLUT_KEY_UP])
+      if (keyPressed['w'])
         acceleration.z += +0.05 * cosAngle, acceleration.x += +0.05 * sinAngle;
-      if (specialKeyPressed[GLUT_KEY_DOWN])
+      if (keyPressed['s'])
         acceleration.z += -0.05 * cosAngle, acceleration.x += -0.05 * sinAngle;
-      if (specialKeyPressed[GLUT_KEY_RIGHT])
+      if (keyPressed['d'])
         acceleration.x += -0.05 * cosAngle, acceleration.z += +0.05 * sinAngle;
-      if (specialKeyPressed[GLUT_KEY_LEFT])
+      if (keyPressed['a'])
         acceleration.x += +0.05 * cosAngle, acceleration.z += -0.05 * sinAngle;
       acceleration.limit(0.05);
     }
     else acceleration *= 0.0, speed *= 0.0;
 
-    if (keyPressed['q'] || keyPressed['w'])
+    if (keyPressed['q'] || keyPressed['e'])
     {
       if (keyPressed['q'])
         angularAcceleration = +0.001;
-      if (keyPressed['w'])
+      if (keyPressed['e'])
         angularAcceleration = -0.001;
     }
     else angularAcceleration = angularSpeed = 0;
@@ -83,6 +84,7 @@ struct Camera
   }
 };
 Camera camera = {{0, 0, -90}, {0, 0, 0}, {0, 0, 0}};
+Point mousePosition;
 vector<Point> vertices;
 static GLubyte frenteIndices[]    = {0,4,3,2};
 static GLubyte trasIndices[]      = {5,6,7,8};
@@ -114,9 +116,25 @@ void specialFuncHandler(int key, int x, int y) { specialKeyPressed[key] = true; 
 void specialFuncUpHandler(int key, int x, int y) { specialKeyPressed[key] = false; }
 void keyboardHandler(unsigned char key, int x, int y) { keyPressed[key] = true; }
 void keyboardUpHandler(unsigned char key, int x, int y) { keyPressed[key] = false; }
+void mouseHandler(int button, int state, int x, int y) { }
+void passiveMotionHandler(int x, int y)
+{
+  if (x < widthd2) camera.angle += (widthd2 - x) / 2000.0;
+  else if (x > widthd2) camera.angle += (widthd2 - x) / 2000.0;
+  if (y < heightd2) angleY += (heightd2 - y) / 20.0;
+  else if (y > heightd2) angleY += (heightd2 - y) / 20.0;
+  if (x != widthd2)
+  {
+    camera.cosAngle = cos(camera.angle), camera.sinAngle = sin(camera.angle);
+    distanceX = camera.sinAngle * distanceBase, distanceZ = camera.cosAngle * distanceBase;
+  }
+  mousePosition.x = x, mousePosition.y = y;
+}
 
 void scheduleUpdate(int value)
 {
+  if (mousePosition.x != widthd2 || mousePosition.y != heightd2)
+    glutWarpPointer(widthd2, heightd2);
   glutTimerFunc(10, scheduleUpdate, 1);
   loadVertices();
   camera.getMovement();
@@ -181,12 +199,11 @@ void display()
   glLoadIdentity();
   gluPerspective(65.0, (GLfloat) width/(GLfloat) height, 20.0, 180.0);
   gluLookAt(camera.position.x, camera.position.y, camera.position.z,
-            camera.position.x + distanceX, camera.position.y, camera.position.z + distanceZ,
+            camera.position.x + distanceX, camera.position.y + angleY, camera.position.z + distanceZ,
             0, 1, 0);
 
   drawHouse();
 
-  glFlush();
   glutSwapBuffers();
 }
 
@@ -218,5 +235,9 @@ int main(int argc, char **argv)
   glutKeyboardUpFunc(keyboardUpHandler);
   glutSpecialFunc(specialFuncHandler);
   glutSpecialUpFunc(specialFuncUpHandler);
+  glutSetCursor(GLUT_CURSOR_CROSSHAIR);
+  glutMouseFunc(mouseHandler);
+  glutMotionFunc(passiveMotionHandler);
+  glutPassiveMotionFunc(passiveMotionHandler);
   glutMainLoop();
 }
