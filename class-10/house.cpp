@@ -197,12 +197,20 @@ void display()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glLoadIdentity();
-  gluPerspective(65.0, (GLfloat) width/(GLfloat) height, 20.0, 180.0);
+  gluPerspective(65.0, (GLfloat) width/(GLfloat) height, 20.0, 380.0);
   gluLookAt(camera.position.x, camera.position.y, camera.position.z,
             camera.position.x + distanceX, camera.position.y + angleY, camera.position.z + distanceZ,
             0, 1, 0);
 
   drawHouse();
+
+  glColor3f(0.0, 0.7, 0.0);
+  glBegin(GL_POLYGON);
+    glVertex3f(-200.0f, -vertices[11].y / 2.0, -200.0f);
+    glVertex3f(-200.0f, -vertices[11].y / 2.0, 200.0f);
+    glVertex3f( 200.0f, -vertices[11].y / 2.0, 200.0f);
+    glVertex3f( 200.0f, -vertices[11].y / 2.0, -200.0f);
+  glEnd();
 
   glutSwapBuffers();
 }
@@ -210,12 +218,12 @@ void display()
 void init()
 {
   loadVertices();
-  glClearColor(0, 0, 0, 0);
+  glClearColor(0, 0, 0.7, 1);
   glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  gluPerspective(65.0, (GLfloat) width/(GLfloat) height, 20.0, 120.0);
+  gluPerspective(65.0, (GLfloat) width/(GLfloat) height, 20.0, 380.0);
   gluLookAt(0, 0, -90, 0, 0, 0, 0, 1, 0);
   // gluPerspective(60, (double) width / height, 1, 20);
   // gluLookAt(5, 5, 6, 0, 0, 0, 0, 1, 0);
