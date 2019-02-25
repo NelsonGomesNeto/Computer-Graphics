@@ -11,8 +11,10 @@
 using namespace std;
 bool specialKeyPressed[256], keyPressed[256];
 const int width = 800, height = 800;
+const double pi = acos(-1);
 const int widthd2 = width / 2, heightd2 = height / 2;
-double angleY = 0, distanceX = 0, distanceZ = 90, distanceBase = 90, maxSpeed = 0.5;
+double angleY = 0, distanceX = 0, distanceZ = 90, distanceBase = 90, maxSpeed = 2;
+double radToDeg(double a) { return(a*180/pi); }
 struct Point
 {
   double x, y, z;
@@ -24,6 +26,16 @@ struct Point
     double mag = sqrt(x*x + y*y + z*z);
     if (mag > 1e-5)
       x *= l / mag, y *= l / mag, z *= l / mag;
+  }
+  void rotateY(double theta)
+  {
+    double auxX = x, auxZ = z, c = cos(theta), s = sin(theta);
+    x = auxX*c + auxZ*s, z = -auxX*s + auxZ*c;
+  }
+  void rotateX(double theta)
+  {
+    double auxY = y, auxZ = z, c = cos(theta), s = sin(theta);
+    y = -(auxY*c - auxZ*s), z = (auxY*s + auxZ*c);
   }
   void print()
   {
@@ -38,15 +50,32 @@ struct Camera
   {
     if (keyPressed['w'] || keyPressed['s'] || keyPressed['d'] || keyPressed['a'])
     {
+      Point direction = {0, 0, 0};
       if (keyPressed['w'])
-        acceleration.z += +0.05 * cosAngle, acceleration.x += +0.05 * sinAngle;
+      {
+        direction += {0, 0, 1};
+        // acceleration.z += +0.05 * cosAngle, acceleration.x += +0.05 * sinAngle;
+      }
       if (keyPressed['s'])
-        acceleration.z += -0.05 * cosAngle, acceleration.x += -0.05 * sinAngle;
+      {
+        direction += {0, 0, -1};
+        // acceleration.z += -0.05 * cosAngle, acceleration.x += -0.05 * sinAngle;
+      }
       if (keyPressed['d'])
-        acceleration.x += -0.05 * cosAngle, acceleration.z += +0.05 * sinAngle;
+      {
+        direction += {-1, 0, 0};
+        // acceleration.x += -0.05 * cosAngle, acceleration.z += +0.05 * sinAngle;
+      }
       if (keyPressed['a'])
-        acceleration.x += +0.05 * cosAngle, acceleration.z += -0.05 * sinAngle;
-      acceleration.limit(0.05);
+      {
+        direction += {1, 0, 0};
+        // acceleration.x += +0.05 * cosAngle, acceleration.z += -0.05 * sinAngle;
+      }
+      direction *= 0.1;
+      direction.rotateX(angleY / 100);
+      direction.rotateY(angle);
+      acceleration += direction;
+      acceleration.limit(0.1);
     }
     else acceleration *= 0.0, speed *= 0.0;
 
