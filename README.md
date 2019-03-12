@@ -20,3 +20,4 @@
   * [Tutorials](http://www.inf.pucrs.br/~manssour/OpenGL/Tutorial.html)
   * [Setup](https://www3.ntu.edu.sg/home/ehchua/programming/opengl/HowTo_OpenGL_C.html)
   * [Transformations](http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/)
+  * [Light](https://www.glprogramming.com/red/chapter05.html)
