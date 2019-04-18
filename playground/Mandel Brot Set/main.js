@@ -1,12 +1,14 @@
-let width = 1920, height = 1080;
+let width = 1000, height = 800;
 var widthCenter, heightCenter;
 let xMin = -2, xMax = 1, yMin = -1.2, yMax = 1.2;
 let xScale, yScale;
 let iterations = 10000;
+var z0;
 
 function setup() {
   createCanvas(width, height); widthCenter = width * (abs(xMin) / (xMax - xMin)), heightCenter = height * (abs(yMin) / (yMax - yMin));
   xScale = width / (xMax - xMin), yScale = height / (yMax - yMin);
+  z0 = new Complex(0, 0);
 }
 
 function f(c, z) {
@@ -32,10 +34,13 @@ function drawGrid() {
 function drawMandelSteps() {
   stroke(0, 0, 100);
   strokeWeight(1);
+  
+  fill(100, 0, 100);
+  ellipse(mouseX - widthCenter, mouseY - heightCenter, 10, 10);
+  
   fill(0, 0, 100);
-
-  var z = new Complex(0, 0), c = new Complex((xMax - xMin) * (mouseX - widthCenter) / width, (yMax - yMin) * (mouseY - heightCenter) / height);
-  var points = []
+  var z = z0.copy(), c = new Complex((xMax - xMin) * (mouseX - widthCenter) / width, (yMax - yMin) * (mouseY - heightCenter) / height);
+  var points = [[z.real * xScale, z.imaginary * yScale]]
   for (var i = 0; i < iterations; i ++) {
     z = f(c, z);
     // ellipse(z.real * xScale, z.imaginary * yScale, 10 - 5*(i / iterations), 10 - 5*(i / iterations));
@@ -51,6 +56,14 @@ function drawMandelSteps() {
   }
   curveVertex(points[points.length - 1][0], points[points.length - 1][1]);
   endShape();
+  // for (var i = 0; i < points.length - 1; i ++)
+  //   line(points[i][0], points[i][1], points[i + 1][0], points[i + 1][1]);
+}
+
+function mouseDragged() {
+  let mouseP = createVector((xMax - xMin) * (mouseX - widthCenter) / width, (yMax - yMin) * (mouseY - heightCenter) / height);
+  if (mouseP.dist(createVector(z0.real, z0.imaginary)) <= 10)
+    z0.real = mouseP.x, z0.imaginary = mouseP.y;
 }
 
 function draw() {
@@ -60,4 +73,7 @@ function draw() {
   drawGrid();
 
   drawMandelSteps();
+  
+  fill(0, 0, 255);
+  ellipse(z0.real * xScale, z0.imaginary * yScale, 10, 10);
 }

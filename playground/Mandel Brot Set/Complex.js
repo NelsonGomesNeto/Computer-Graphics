@@ -21,4 +21,8 @@ class Complex {
       // this.real *= other;
     return(this);
   }
+
+  copy() {
+    return(new Complex(this.real, this.imaginary));
+  }
 }
