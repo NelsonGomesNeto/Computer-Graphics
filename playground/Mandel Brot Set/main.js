@@ -1,4 +1,4 @@
-let width = 1000, height = 700;
+let width = 1920, height = 1080;
 var widthCenter, heightCenter;
 let xMin = -2, xMax = 1, yMin = -1.2, yMax = 1.2;
 let xScale, yScale;
@@ -30,9 +30,9 @@ function drawGrid() {
 }
 
 function drawMandelSteps() {
-  stroke(0, 255, 0);
+  stroke(0, 0, 100);
   strokeWeight(1);
-  fill(0, 255, 0);
+  fill(0, 0, 100);
 
   var z = new Complex(0, 0), c = new Complex((xMax - xMin) * (mouseX - widthCenter) / width, (yMax - yMin) * (mouseY - heightCenter) / height);
   var points = []
@@ -54,7 +54,7 @@ function drawMandelSteps() {
 }
 
 function draw() {
-  background(0, 0, 255);
+  background(255, 255, 255);
   translate(widthCenter, heightCenter);
 
   drawGrid();
